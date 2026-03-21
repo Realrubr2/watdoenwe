@@ -1,0 +1,163 @@
+<!-- Top App Bar (Mobile) -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md md:hidden">
+  <div class="flex justify-between items-center px-4 py-3">
+    <button class="btn-icon">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <a routerLink="/" class="text-xl font-black text-primary tracking-tighter">WDW?</a>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">
+      J
+    </div>
+  </div>
+</header>
+
+<!-- Desktop Header -->
+<app-header class="hidden md:block"></app-header>
+
+<main class="min-h-screen pt-20 md:pt-24 pb-32 px-4 md:px-6 max-w-md md:max-w-7xl mx-auto">
+  <!-- Page Header Section -->
+  <section class="mb-6">
+    <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight mb-2">
+      Planning voor <span class="text-primary">Zaterdag 14 Maart</span>
+    </h1>
+    <p class="text-on-surface-variant font-medium">Verzamel ideeën en stem op je favorieten</p>
+  </section>
+
+  <!-- Add Idea Input Card -->
+  <div class="bg-primary-container/20 border-l-4 border-l-primary rounded p-5 mb-8">
+    <label class="text-xs font-bold uppercase tracking-widest text-primary block mb-3">Voeg iets toe</label>
+    <div class="flex gap-3">
+      <input
+        type="text"
+        [(ngModel)]="newIdeaTitle"
+        placeholder="Wat gaan we doen?"
+        class="flex-1 bg-transparent border-b-2 border-primary/30 focus:border-primary outline-none font-semibold py-2 transition-colors"
+      />
+      <button
+        (click)="addIdea()"
+        [disabled]="!newIdeaTitle()"
+        class="bg-primary text-on-primary px-4 py-2 rounded shadow-sm hover:shadow-md transition-shadow flex items-center gap-1"
+      >
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Masonry Grid -->
+  <div class="masonry-grid">
+    @for (idea of ideas(); track idea.id) {
+      <div class="masonry-item">
+        <div class="card overflow-hidden">
+          <!-- Image -->
+          @if (idea.imageUrl) {
+            <div class="aspect-[4/5] overflow-hidden relative">
+              <img [src]="idea.imageUrl" [alt]="idea.title" class="w-full h-full object-cover" />
+
+              <!-- Like Badge -->
+              <div class="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/10 shadow-sm flex items-center gap-1">
+                <span class="material-symbols-outlined text-error text-lg" [class.filled]="idea.hasVoted">favorite</span>
+                <span class="text-xs font-bold">{{ idea.votes }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Content -->
+          <div class="p-3">
+            <h3 class="font-bold text-sm leading-tight mb-1">{{ idea.title }}</h3>
+            @if (idea.description) {
+              <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">{{ idea.description }}</p>
+            }
+            @if (idea.address || idea.link) {
+              <div class="flex items-center gap-2 mt-2 text-[11px] text-on-surface-variant">
+                @if (idea.address) {
+                  <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">location_on</span>
+                    <span>{{ idea.address }}</span>
+                  </div>
+                }
+                @if (idea.link) {
+                  <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">schedule</span>
+                    <span>11:00 - 15:00</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Placeholder cards -->
+    <div class="masonry-item">
+      <div class="card overflow-hidden">
+        <div class="aspect-[4/5] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center relative">
+          <span class="material-symbols-outlined text-6xl text-primary/30">local_bar</span>
+          <div class="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/10 shadow-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-error text-lg filled">favorite</span>
+            <span class="text-xs font-bold">5</span>
+          </div>
+        </div>
+        <div class="p-3">
+          <h3 class="font-bold text-sm leading-tight mb-1">Signature Cocktails @ Blue Note</h3>
+          <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">Ze hebben een nieuwe lentekaart met vlierbloesem infusies...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="masonry-item">
+      <div class="card p-3">
+        <div class="absolute top-2 right-2 flex items-center gap-1">
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">favorite_border</span>
+          <span class="text-xs font-bold text-on-surface-variant">3</span>
+        </div>
+        <h3 class="font-bold text-sm leading-tight mb-1">Picknick in het Noorderpark</h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed">Iedereen neemt iets kleins mee. Ik regel de prosecco en glazen!</p>
+      </div>
+    </div>
+
+    <div class="masonry-item">
+      <div class="card overflow-hidden">
+        <div class="aspect-[4/5] bg-gradient-to-br from-tertiary/20 to-tertiary/5 flex items-center justify-center relative">
+          <span class="material-symbols-outlined text-6xl text-tertiary/30">bakery_dining</span>
+          <div class="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/10 shadow-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-on-surface-variant text-lg">favorite_border</span>
+            <span class="text-xs font-bold">2</span>
+          </div>
+        </div>
+        <div class="p-3">
+          <h3 class="font-bold text-sm leading-tight mb-1">Donut Pop-up Store</h3>
+          <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">Alleen deze zaterdag geopend...</p>
+          <div class="flex items-center gap-3 mt-2 text-[11px] text-on-surface-variant">
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              <span>11:00 - 15:00</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">location_on</span>
+              <span>Centrum</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="masonry-item">
+      <div class="card p-3 border-l-4 border-l-primary">
+        <div class="absolute top-2 right-2 flex items-center gap-1">
+          <span class="material-symbols-outlined text-error text-lg filled">favorite</span>
+          <span class="text-xs font-bold">4</span>
+        </div>
+        <h3 class="font-bold text-sm leading-tight mb-1">Reserveren bij 'Opa's'</h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed">Zeker weten dat we hier willen eten?</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Floating Action Button -->
+<button class="fab" (click)="showAddModal = true">
+  <span class="material-symbols-outlined text-3xl">add</span>
+</button>
+
+<app-mobile-nav></app-mobile-nav>

@@ -1,0 +1,199 @@
+/*
+  Vanilla CSS utilities required by the Angular templates.
+  Grid-focused (recommended pattern) + a small set of layout primitives.
+
+  NOTE: This file lives in /src/assets so it is served by Angular dev server.
+  (The previous copy under src/app was not reachable at runtime.)
+*/
+
+:root {
+  --w-gap-1: 0.25rem;
+  --w-gap-2: 0.5rem;
+  --w-gap-3: 0.75rem;
+  --w-gap-4: 1rem;
+  --w-gap-6: 1.5rem;
+  --w-gap-8: 2rem;
+}
+
+/* Grid */
+.w-grid {
+  display: grid;
+}
+
+.w-grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.w-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.w-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.w-grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.w-grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+.w-gap-1 { gap: var(--w-gap-1); }
+.w-gap-2 { gap: var(--w-gap-2); }
+.w-gap-4 { gap: var(--w-gap-4); }
+.w-gap-8 { gap: var(--w-gap-8); }
+
+@media (min-width: 768px) {
+  .md\:w-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:w-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:w-grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .md\:w-hidden { display: none !important; }
+  .md\:w-flex { display: flex !important; }
+}
+
+/* --- Dashboard semantic classes (minimal first pass) --- */
+
+.wdw-main {
+  min-height: 100vh;
+  padding: 6rem 1.5rem 8rem;
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+.wdw-section { margin-bottom: 3rem; }
+
+.wdw-subtitle { margin-bottom: 0.5rem; }
+
+.wdw-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.wdw-label--muted {
+  color: rgba(94, 90, 71, 0.6);
+}
+
+.wdw-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.wdw-lead {
+  font-size: 1.125rem;
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+}
+
+.wdw-cta {
+  font-size: 1.125rem;
+  padding-block: 1.25rem;
+  padding-inline: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.wdw-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .wdw-bento-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wdw-bento-item--span2 { grid-column: span 2 / span 2; }
+}
+
+.wdw-bento-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+  min-height: 192px;
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-default);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.wdw-bento-item:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.wdw-bento-item--span2 { min-height: 176px; }
+
+.wdw-bento-item--primarybg { background: var(--color-surface-container-high); }
+
+.wdw-bento-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-default);
+  background: rgba(234, 179, 8, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wdw-bento-icon__symbol {
+  font-size: 1.875rem;
+  color: var(--color-primary);
+}
+
+.wdw-bento-text { padding-top: 0.25rem; }
+
+.wdw-bento-title { font-weight: 800; margin: 0 0 0.25rem; font-size: 1.25rem; }
+.wdw-bento-subtitle { margin: 0; color: var(--color-on-surface-variant); font-weight: 500; }
+
+.wdw-bento-icon-wrap { position: relative; z-index: 10; }
+.wdw-bento-decor {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 7.5rem;
+  color: rgba(46, 43, 29, 0.05);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.wdw-list { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.wdw-plan-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid rgba(211, 207, 188, 0.15);
+  border-radius: var(--radius-default);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.wdw-plan-row:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.wdw-plan-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-default);
+  background: rgba(234, 179, 8, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.wdw-plan-icon__symbol { color: var(--color-primary); font-size: 1.125rem; }
+
+.wdw-plan-text { flex: 1 1 auto; min-width: 0; }
+
+.wdw-plan-title { font-weight: 800; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
+
+.wdw-plan-status {
+  margin: 0.25rem 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.wdw-plan-chevron { color: var(--color-outline-variant); margin-left: 0.5rem; }
+

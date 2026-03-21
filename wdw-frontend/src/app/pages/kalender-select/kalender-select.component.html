@@ -1,0 +1,111 @@
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md">
+  <div class="flex justify-between items-center px-6 py-4 max-w-4xl mx-auto">
+    <button class="btn-icon" routerLink="/vaste-activiteit">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="text-lg font-bold">Select Availability</h1>
+    <a routerLink="/" class="text-xl font-black text-primary tracking-tighter">WDW?</a>
+  </div>
+</header>
+
+<main class="min-h-screen pt-20 pb-32 px-6 max-w-4xl mx-auto relative">
+  <!-- Decorative Background Blobs -->
+  <div class="blob w-96 h-96 bg-surface-container -top-20 -right-20 opacity-60 blur-[100px]"></div>
+  <div class="blob w-80 h-80 bg-surface-container-highest -bottom-20 -left-20 opacity-50 blur-[80px]"></div>
+
+  <!-- Calendar Month Header -->
+  <section class="mb-8 relative z-10">
+    <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">SPRING 2024</p>
+    <div class="flex items-center justify-between">
+      <h2 class="text-4xl font-extrabold tracking-tight">March</h2>
+      <div class="flex gap-2">
+        <button class="btn-icon" (click)="previousMonth()">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button class="btn-icon" (click)="nextMonth()">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calendar Grid -->
+  <section class="relative z-10">
+    <!-- Day Labels -->
+    <div class="grid grid-cols-7 gap-2 mb-4">
+      @for (day of weekDays; track day) {
+        <div class="text-center text-xs font-bold uppercase text-on-surface-variant"
+             [class.text-primary]="day === 'SAT' || day === 'SUN'">
+          {{ day }}
+        </div>
+      }
+    </div>
+
+    <!-- Calendar Cells -->
+    <div class="grid grid-cols-7 gap-2">
+      @for (day of calendarDays(); track day.date.toISOString()) {
+        <div
+          class="calendar-cell cursor-pointer select-none"
+          [class.opacity-30]="!day.isCurrentMonth"
+          [class.bg-primary/25]="isDateSelected(day)"
+          [class.backdrop-blur-sm]="isDateSelected(day)"
+          (mousedown)="startPaint(day)"
+          (mouseenter)="continuePaint(day)"
+          (mouseup)="endPaint()"
+          (touchstart)="startPaint(day); $event.preventDefault()"
+          (touchmove)="handleTouchMove($event)"
+          (touchend)="endPaint()"
+        >
+          <!-- Date Number -->
+          <span class="text-sm font-medium" [class.text-primary]="day.isWeekend">
+            {{ day.dayNumber }}
+          </span>
+
+          <!-- Participant Avatars -->
+          @if (day.participants.length > 0) {
+            <div class="absolute top-1 right-1 flex -space-x-1">
+              @for (participant of day.participants.slice(0, 3); track participant.userId) {
+                <div
+                  class="w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold scale-75"
+                  [style.backgroundColor]="participant.userColor.replace('0.3', '1')"
+                >
+                  {{ participant.userName.charAt(0) }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Instructional Text -->
+  <section class="mt-8 text-center relative z-10">
+    <p class="text-on-surface-variant mb-2">Slide your finger across the dates</p>
+    <p class="text-primary font-bold">{{ selectedDates().length }} dates selected</p>
+  </section>
+</main>
+
+<!-- Floating Action Button (Save) -->
+<div class="fixed bottom-0 left-0 right-0 z-40">
+  <button
+    (click)="saveSelection()"
+    [disabled]="selectedDates().length === 0"
+    class="w-full py-5 bg-primary hover:bg-primary-dim text-on-primary font-bold uppercase tracking-widest shadow-lg shadow-primary/30 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-3"
+  >
+    Opslaan
+    <span class="material-symbols-outlined">arrow_forward</span>
+  </button>
+</div>
+
+<!-- Finger Indicator (shown during paint) -->
+@if (isPainting()) {
+  <div
+    class="fixed w-16 h-16 rounded-full bg-white/30 backdrop-blur-sm shadow-xl pointer-events-none z-50 flex items-center justify-center"
+    [style.left.px]="fingerPosition().x - 32"
+    [style.top.px]="fingerPosition().y - 32"
+  >
+    <div class="w-10 h-10 rounded-full bg-white/50"></div>
+  </div>
+}

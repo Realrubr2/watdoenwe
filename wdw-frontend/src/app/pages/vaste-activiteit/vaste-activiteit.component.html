@@ -1,0 +1,177 @@
+<app-header></app-header>
+
+<main class="min-h-screen pt-24 pb-32 px-6 max-w-7xl mx-auto">
+  <!-- Activity Header Section -->
+  <section class="mb-8">
+    <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">PLANNEN</p>
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">Midgetgolfen</h1>
+    <div class="flex items-center gap-2 text-on-surface-variant mb-4">
+      <span class="material-symbols-outlined text-lg">location_on</span>
+      <span class="font-medium">GlowGolf Centrum</span>
+    </div>
+
+    <!-- Participant Avatars -->
+    <div class="flex items-center gap-2">
+      <div class="flex -space-x-2">
+        <div class="w-8 h-8 rounded bg-blue-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">J</div>
+        <div class="w-8 h-8 rounded bg-green-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">L</div>
+        <div class="w-8 h-8 rounded bg-red-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">M</div>
+        <div class="w-8 h-8 rounded bg-orange-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">S</div>
+      </div>
+      <span class="badge-secondary">+1</span>
+    </div>
+  </section>
+
+  <!-- Calendar Container -->
+  <section class="mb-12">
+    <!-- Calendar Header -->
+    <div class="flex items-center justify-between mb-6">
+      <button class="btn-icon" (click)="previousMonth()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <h2 class="text-xl font-bold">{{ monthName() }} {{ currentYear() }}</h2>
+      <button class="btn-icon" (click)="nextMonth()">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
+      <!-- Day Labels -->
+      <div class="grid grid-cols-7 gap-1 mb-2">
+        @for (day of weekDays; track day) {
+          <div class="text-center text-xs font-bold uppercase tracking-tighter text-on-surface-variant py-2"
+               [class.text-primary]="day === 'ZA' || day === 'ZO'">
+            {{ day }}
+          </div>
+        }
+      </div>
+
+      <!-- Calendar Cells -->
+      <div class="grid grid-cols-7 gap-1">
+        @for (day of calendarDays(); track day.date.toISOString()) {
+          <div
+            class="calendar-cell cursor-pointer"
+            [class.opacity-30]="!day.isCurrentMonth"
+            [class.bg-primary/10]="day.isToday"
+            [class.ring-2]="day.isPerfectMatch"
+            [class.ring-primary]="day.isPerfectMatch"
+            [class.ring-offset-2]="day.isPerfectMatch"
+          >
+            <!-- Date Number -->
+            <span class="text-xs font-medium" [class.text-primary]="day.isWeekend">
+              {{ day.dayNumber }}
+            </span>
+
+            <!-- Participant Overlays -->
+            @if (day.participants.length > 0) {
+              <div class="absolute inset-0 rounded-lg overflow-hidden">
+                @for (participant of day.participants; track participant.userId) {
+                  <div
+                    class="heatmap-overlay"
+                    [style.backgroundColor]="participant.userColor"
+                  ></div>
+                }
+              </div>
+
+              <!-- Avatar Cluster -->
+              <div class="absolute top-1 right-1 flex -space-x-1">
+                @for (participant of day.participants.slice(0, 3); track participant.userId) {
+                  <div
+                    class="w-4 h-4 rounded-full border border-white flex items-center justify-center text-white text-[8px] font-bold scale-75"
+                    [style.backgroundColor]="participant.userColor.replace('0.3', '1')"
+                  >
+                    {{ participant.userName.charAt(0) }}
+                  </div>
+                }
+              </div>
+
+              <!-- Perfect Match Indicator -->
+              @if (day.isPerfectMatch) {
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-primary text-lg filled">star</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 text-center">
+                  <span class="text-[8px] font-bold uppercase text-primary">PERFECT!</span>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Legend -->
+      <div class="mt-6 flex flex-wrap gap-3 items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-blue-500/30"></div>
+          <span class="text-xs font-medium text-on-surface-variant">Jan</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-green-500/30"></div>
+          <span class="text-xs font-medium text-on-surface-variant">Lisa</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-red-500/30"></div>
+          <span class="text-xs font-medium text-on-surface-variant">Mark</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-orange-500/30"></div>
+          <span class="text-xs font-medium text-on-surface-variant">Sarah</span>
+        </div>
+        <div class="flex items-center gap-1 ml-auto">
+          <span class="material-symbols-outlined text-primary text-sm">info</span>
+          <span class="text-xs text-on-surface-variant">Dagen kleuren intenser bij meer matches</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Matches Section -->
+  <section>
+    <div class="flex items-center gap-2 mb-6">
+      <span class="material-symbols-outlined text-primary filled">auto_awesome</span>
+      <h2 class="text-2xl font-bold tracking-tight">Beste Tijden</h2>
+    </div>
+
+    <div class="space-y-4">
+      <!-- Primary Match Card -->
+      <div class="bg-primary rounded-lg p-6 shadow-lg border-b-4 border-b-primary/20 hover:-translate-y-1 transition-transform duration-200">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-primary/70 mb-2">ULTIEME MATCH</p>
+        <h3 class="text-2xl font-bold text-on-primary mb-2">Zaterdag 14 maart</h3>
+        <div class="inline-flex items-center gap-1 px-3 py-1 bg-on-primary/20 rounded-full mb-3">
+          <span class="text-sm font-bold text-on-primary">5/5 Aanwezig</span>
+        </div>
+        <p class="text-on-primary/80 text-sm mb-4">De hele groep heeft deze dag groen licht gegeven. Perfect voor een middagje midgetgolf!</p>
+        <button class="btn-secondary bg-on-primary text-primary w-full">
+          Nu Vastleggen
+        </button>
+      </div>
+
+      <!-- Secondary Match Card -->
+      <div class="bg-surface-container-lowest rounded-lg p-6 border-2 border-outline-variant/30 hover:border-primary/50 transition-colors duration-200">
+        <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">ALTERNATIEF</p>
+        <h3 class="text-xl font-bold mb-2">Zaterdag 2 maart</h3>
+        <div class="inline-flex items-center gap-1 px-3 py-1 bg-surface-variant rounded-full mb-3">
+          <span class="text-sm font-bold text-on-surface-variant">4/5 Aanwezig</span>
+        </div>
+        <p class="text-on-surface-variant text-sm mb-4">Bijna iedereen kan, alleen de laatste persoon moet nog bevestigen.</p>
+        <button class="btn-outline w-full">
+          Details bekijken
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Mobile Painter Tool -->
+<div class="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 md:hidden">
+  <div class="bg-surface-container-lowest rounded-full shadow-lg border border-outline-variant/20 px-4 py-3 flex items-center gap-3">
+    <span class="material-symbols-outlined text-on-surface-variant">edit_square</span>
+    <span class="text-sm font-medium text-on-surface-variant">Beschikbaarheid</span>
+    <div class="w-px h-6 bg-outline-variant/30"></div>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">J</div>
+    <span class="material-symbols-outlined text-on-surface-variant">block</span>
+  </div>
+</div>
+
+<app-mobile-nav></app-mobile-nav>

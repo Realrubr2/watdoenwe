@@ -1,0 +1,109 @@
+<app-header></app-header>
+
+<main class="wdw-main home-main">
+  <!-- Hero Section -->
+  <section class="home-hero">
+    <div class="home-pill">
+      <span class="home-pill__dot"></span>
+      <span class="home-pill__text">SOCIAL PLANNING REDEFINED</span>
+    </div>
+    <h1 class="home-title">
+      Geen gedoe meer met <span class="home-title__accent">plannen maken.</span>
+    </h1>
+    <a routerLink="/dashboard" class="btn-primary home-cta">
+      Start nieuw plan
+      <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+  </section>
+
+  <!-- Selection Section -->
+  <section class="home-section">
+    <div class="home-selection">
+      <div class="home-selection__text">
+        <h2 class="home-subtitle">Wat gaan we doen?</h2>
+        <p class="home-lead">Kies een startpunt voor je activiteit.</p>
+      </div>
+    </div>
+
+    <!-- Bento Grid - Three Options -->
+    <div class="home-bento">
+      <!-- Option 1: Ik weet wanneer -->
+      <a
+        routerLink="/vaste-datum"
+        class="home-bento__item"
+      >
+        <div class="home-bento__icon">
+          <span class="material-symbols-outlined home-bento__iconSymbol">calendar_today</span>
+        </div>
+        <div class="home-bento__text">
+          <h3 class="home-bento__title">Ik weet wanneer</h3>
+          <p class="home-bento__subtitle">Vaste datum</p>
+        </div>
+        <div class="home-bento__arrow" aria-hidden="true">
+          <span class="material-symbols-outlined">north_east</span>
+        </div>
+      </a>
+
+      <!-- Option 2: Ik weet wat -->
+      <a
+        routerLink="/vaste-activiteit"
+        class="home-bento__item"
+      >
+        <div class="home-bento__icon">
+          <span class="material-symbols-outlined home-bento__iconSymbol">favorite</span>
+        </div>
+        <div class="home-bento__text">
+          <h3 class="home-bento__title">Ik weet wat</h3>
+          <p class="home-bento__subtitle">Vaste activiteit</p>
+        </div>
+        <div class="home-bento__arrow" aria-hidden="true">
+          <span class="material-symbols-outlined">north_east</span>
+        </div>
+      </a>
+
+      <!-- Option 3: Geen idee nog -->
+      <a
+        routerLink="/we-zien-wel"
+        class="home-bento__item"
+      >
+        <div class="home-bento__icon">
+          <span class="material-symbols-outlined home-bento__iconSymbol">help</span>
+        </div>
+        <div class="home-bento__text">
+          <h3 class="home-bento__title">Geen idee nog</h3>
+          <p class="home-bento__subtitle">We zien wel</p>
+        </div>
+        <div class="home-bento__arrow" aria-hidden="true">
+          <span class="material-symbols-outlined">north_east</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Recent Activities -->
+  <section class="home-recent">
+    <div class="home-recent__icon">
+      <span class="material-symbols-outlined home-recent__iconSymbol">groups</span>
+    </div>
+    <h4 class="home-recent__title">Plan samen, beleef meer</h4>
+    <p class="home-recent__lead">
+      Nodig vrienden uit, stem op data en locaties, en creëer herinneringen zonder de hoofdpijn van de planning.
+    </p>
+  </section>
+</main>
+
+<app-mobile-nav></app-mobile-nav>
+
+<!-- Desktop Floating Status Bar -->
+<div class="home-floating" aria-hidden="true">
+  <div class="home-floating__avatars">
+    <div class="home-floating__avatar home-floating__avatar--blue">J</div>
+    <div class="home-floating__avatar home-floating__avatar--green">L</div>
+    <div class="home-floating__avatar home-floating__avatar--red">M</div>
+  </div>
+  <div class="home-floating__divider"></div>
+  <div class="home-floating__text">
+    <span class="home-floating__count">2 actieve plannen</span>
+    <span class="material-symbols-outlined home-floating__icon">open_in_new</span>
+  </div>
+</div>

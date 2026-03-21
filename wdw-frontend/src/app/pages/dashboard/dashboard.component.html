@@ -1,0 +1,115 @@
+<app-header></app-header>
+
+  <main class="wdw-main">
+  <!-- Hero Section -->
+  <section class="wdw-section">
+    <div class="wdw-subtitle">
+      <span class="wdw-label">Editorial Planner</span>
+    </div>
+    <h1 class="wdw-title">Wat gaan we doen?</h1>
+    <p class="wdw-lead">Kies een startpunt voor je activiteit.</p>
+  </section>
+
+  <!-- Main CTA Button -->
+  <section class="wdw-section">
+    <button class="btn-primary w-full wdw-cta">
+      <span class="material-symbols-outlined">add_circle</span>
+      START NIEUW PLAN
+    </button>
+  </section>
+
+  <!-- Planning Modes Grid (Bento Layout) -->
+  <section class="wdw-section">
+    <div class="wdw-bento-grid">
+      <!-- Mode 1: Ik weet wanneer (Full width on mobile, 1 column on desktop) -->
+      <a
+        routerLink="/vaste-datum"
+        class="wdw-bento-item wdw-bento-item--span2"
+        style="min-height: 176px;"
+      >
+        <div class="wdw-bento-icon">
+          <span class="material-symbols-outlined wdw-bento-icon__symbol">calendar_today</span>
+        </div>
+        <div class="wdw-bento-text">
+          <h3 class="wdw-bento-title">Ik weet wanneer</h3>
+          <p class="wdw-bento-subtitle">(Vaste datum)</p>
+        </div>
+      </a>
+
+      <!-- Mode 2: Ik weet wat -->
+      <a
+        routerLink="/vaste-activiteit"
+        class="wdw-bento-item"
+        style="min-height: 192px;"
+      >
+        <div class="wdw-bento-icon">
+          <span class="material-symbols-outlined wdw-bento-icon__symbol">restaurant</span>
+        </div>
+        <div class="wdw-bento-text">
+          <h3 class="wdw-bento-title">Ik weet wat</h3>
+          <p class="wdw-bento-subtitle">(Vaste activiteit)</p>
+        </div>
+      </a>
+
+      <!-- Mode 3: Geen idee nog -->
+      <a
+        routerLink="/we-zien-wel"
+        class="wdw-bento-item wdw-bento-item--primarybg"
+        style="min-height: 192px;"
+      >
+        <div class="wdw-bento-icon-wrap">
+          <div class="wdw-bento-icon">
+            <span class="material-symbols-outlined wdw-bento-icon__symbol">help</span>
+          </div>
+        </div>
+        <span class="wdw-bento-decor">help_outline</span>
+        <div class="wdw-bento-text">
+          <h3 class="wdw-bento-title">Geen idee nog</h3>
+          <p class="wdw-bento-subtitle">(We zien wel)</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Recent Plans Section -->
+  @if (recentPlans().length > 0) {
+    <section>
+      <h2 class="wdw-label wdw-label--muted">Recente Plannen</h2>
+      <div class="wdw-list">
+        @for (plan of recentPlans(); track plan.id) {
+          <a
+            [routerLink]="getPlanRoute(plan.mode)"
+            class="wdw-plan-row"
+          >
+            <div class="wdw-plan-icon">
+              <span class="material-symbols-outlined wdw-plan-icon__symbol">group</span>
+            </div>
+            <div class="wdw-plan-text">
+              <h3 class="wdw-plan-title">{{ plan.name }}</h3>
+              <p class="wdw-plan-status">
+                {{ getPlanStatusText(plan.status) }}
+              </p>
+            </div>
+            <span class="material-symbols-outlined wdw-plan-chevron">chevron_right</span>
+          </a>
+        }
+      </div>
+    </section>
+  }
+</main>
+
+<app-mobile-nav></app-mobile-nav>
+
+<!-- Desktop Floating Status Bar -->
+<div class="hidden md:flex fixed bottom-8 right-8 bg-surface-container-lowest shadow-2xl rounded px-6 py-3 items-center gap-4 border border-white/50 z-40 backdrop-blur-sm">
+  <div class="flex -space-x-3">
+    <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">J</div>
+    <div class="w-8 h-8 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">L</div>
+    <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">M</div>
+  </div>
+  <div class="w-px h-8 bg-outline-variant/30"></div>
+  <div class="flex items-center gap-2">
+    <span class="font-bold text-sm">{{ recentPlans().length }} actieve plannen</span>
+    <span class="material-symbols-outlined text-primary text-xl">open_in_new</span>
+  </div>
+</div>
