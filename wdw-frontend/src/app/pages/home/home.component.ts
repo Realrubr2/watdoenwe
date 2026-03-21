@@ -9,14 +9,6 @@ import { MobileNavComponent } from '../../components/layout/mobile-nav/mobile-na
   standalone: true,
   imports: [CommonModule, RouterLink, HeaderComponent, MobileNavComponent],
   templateUrl: './home.component.html',
-  styles: [`
-    :host {
-      display: block;
-      background-color: #fffcf0;
-      background-image: radial-gradient(#E1AD01 0.5px, transparent 0.5px);
-      background-size: 24px 24px;
-      background-attachment: fixed;
-    }
-  `]
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent {}

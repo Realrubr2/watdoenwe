@@ -11,6 +11,76 @@
   --w-gap-4: 1rem;
   --w-gap-6: 1.5rem;
   --w-gap-8: 2rem;
+
+  /* Design System Colors - mirrored from styles.css @theme block */
+  /* Primary Colors (Mustard Yellow) */
+  --color-primary: #EAB308;
+  --color-primary-dim: #C79900;
+  --color-primary-container: #F5E4A3;
+  --color-primary-fixed: #F5E4A3;
+  --color-primary-fixed-dim: #E1AD01;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-container: #473600;
+  --color-on-primary-fixed: #000000;
+  --color-on-primary-fixed-variant: #5C4600;
+
+  /* Secondary Colors */
+  --color-secondary: #006947;
+  --color-secondary-dim: #005C3D;
+  --color-secondary-container: #69F6B8;
+  --color-secondary-fixed: #69F6B8;
+  --color-secondary-fixed-dim: #58E7AB;
+  --color-on-secondary: #C8FFE0;
+  --color-on-secondary-container: #005A3C;
+  --color-on-secondary-fixed: #00452D;
+  --color-on-secondary-fixed-variant: #006544;
+
+  /* Tertiary Colors */
+  --color-tertiary: #B80438;
+  --color-tertiary-dim: #A20030;
+  --color-tertiary-container: #FF9099;
+  --color-tertiary-fixed: #FF9099;
+  --color-tertiary-fixed-dim: #FF7986;
+  --color-on-tertiary: #FFEFEF;
+  --color-on-tertiary-container: #68001B;
+  --color-on-tertiary-fixed: #39000B;
+  --color-on-tertiary-fixed-variant: #780021;
+
+  /* Error Colors */
+  --color-error: #B41340;
+  --color-error-dim: #A70138;
+  --color-error-container: #F74B6D;
+  --color-on-error: #FFEFEF;
+  --color-on-error-container: #510017;
+
+  /* Surface Colors */
+  --color-surface: #FFFCF0;
+  --color-surface-dim: #E8E4CF;
+  --color-surface-bright: #FFFCF0;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #FDFCF5;
+  --color-surface-container: #F2EEDB;
+  --color-surface-container-high: #EBE7D5;
+  --color-surface-container-highest: #E8E4CF;
+  --color-surface-tint: #E1AD01;
+  --color-surface-variant: #F4F1E0;
+
+  /* Background & On-Surface */
+  --color-background: #FFFCF0;
+  --color-on-background: #2E2B1D;
+  --color-on-surface: #2E2B1D;
+  --color-on-surface-variant: #5E5A47;
+
+  /* Outline */
+  --color-outline: #7D775C;
+  --color-outline-variant: #D3CFBC;
+
+  /* Border Radius */
+  --radius-default: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
 }
 
 /* Grid */
@@ -176,6 +246,7 @@
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   max-width: 80rem;
+  margin-inline: auto;
 }
 
 .home-hero {
@@ -201,6 +272,12 @@
   height: 0.5rem;
   border-radius: var(--radius-full);
   background: var(--color-primary);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .home-pill__text {
