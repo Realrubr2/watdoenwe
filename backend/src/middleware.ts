@@ -2,7 +2,7 @@ import { Context, Next } from 'hono';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from './db';
 
-export const authMiddleware = async (c: Context<{ Variables: { user: any } }>, next: Next) => {
+export const authMiddleware = async (c: Context<{ Variables: { user: any } }>, next: Next): Promise<void | Response> => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
