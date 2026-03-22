@@ -1,4 +1,4 @@
-import { Hono } from 'hono/quick';
+import { Hono } from 'hono/tiny';
 import { openAPIRouteHandler } from 'hono-openapi';
 import auth from './routes/auth';
 import plans from './routes/plans';
@@ -12,7 +12,7 @@ const app = new Hono();
 app.route('/auth', auth);
 app.route('/plans', plans);
 app.route('/activities', activities);
-app.route('/ideas', ideas);
+app.route('/ideas', ideas); 
 app.route('/availability', availability);
 
 // OpenAPI Docs
