@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono } from 'hono/quick';
 import { openAPIRouteHandler } from 'hono-openapi';
 import auth from './routes/auth';
 import plans from './routes/plans';
