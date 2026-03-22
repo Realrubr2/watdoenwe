@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "dev": "tsx watch src/dev.ts",
     "test": "jest",
     "cdk": "cdk"
   },
@@ -18,11 +19,13 @@
     "jest": "^30",
     "ts-jest": "^29",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "typescript": "~5.9.3"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1014.0",
     "@aws-sdk/lib-dynamodb": "^3.1014.0",
+    "@hono/node-server": "^1.19.11",
     "aws-cdk-lib": "^2.244.0",
     "constructs": "^10.5.1",
     "hono": "^4.12.8",
