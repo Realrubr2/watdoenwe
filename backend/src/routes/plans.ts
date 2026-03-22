@@ -9,11 +9,11 @@ import { authMiddleware } from '../middleware';
 const plans = new Hono<{ Variables: { user: any } }>();
 
 const PlanSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string().min(1),
   mode: z.enum(['FIXED_DATE', 'FIXED_ACTIVITY', 'FLEXIBLE']),
   status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED']),
-  hostId: z.string().uuid(),
+  hostId: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

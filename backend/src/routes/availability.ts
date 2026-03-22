@@ -34,7 +34,7 @@ availability.post(
     tags: ['Availability'],
     summary: 'Create a new date slot',
   }),
-  validator('json', z.object({ date: z.string().datetime(), planId: z.string().uuid() })),
+  validator('json', z.object({ date: z.string().datetime(), planId: z.string() })),
   async (c) => {
     const { date, planId } = c.req.valid('json');
     const dateSlotId = uuidv4();

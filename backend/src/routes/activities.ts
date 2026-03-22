@@ -9,14 +9,14 @@ import { authMiddleware } from '../middleware';
 const activities = new Hono<{ Variables: { user: any } }>();
 
 const ActivitySchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   title: z.string().min(1),
   description: z.string().optional(),
   address: z.string().optional(),
   link: z.string().optional(),
   category: z.enum(['ETEN', 'CULTUUR', 'SPORT', 'OVERIG']),
-  planId: z.string().uuid(),
-  createdBy: z.string().uuid(),
+  planId: z.string(),
+  createdBy: z.string(),
   imageUrl: z.string().optional(),
   votes: z.number().int(),
   createdAt: z.string().datetime(),
@@ -55,7 +55,7 @@ activities.post(
     link: z.string().optional(),
     category: z.enum(['ETEN', 'CULTUUR', 'SPORT', 'OVERIG']),
     imageUrl: z.string().optional(),
-    planId: z.string().uuid(),
+    planId: z.string(),
   })),
   async (c) => {
     const user = c.get('user');

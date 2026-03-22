@@ -8,7 +8,7 @@ import { docClient, TABLE_NAME } from '../db';
 const auth = new Hono();
 
 const UserSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string().min(1),
   isGuest: z.boolean().default(true),
   createdAt: z.string().datetime(),
