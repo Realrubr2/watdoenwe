@@ -1,7 +1,9 @@
+import { Timestamped } from './base.model';
+
 export type PlanMode = 'FIXED_DATE' | 'FIXED_ACTIVITY' | 'FLEXIBLE';
 export type PlanStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
-export interface Plan {
+export interface Plan extends Timestamped {
   id: string;
   name: string;
   mode: PlanMode;
@@ -10,8 +12,6 @@ export interface Plan {
   date?: Date;
   activityName?: string;
   activityLocation?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface PlanParticipant {

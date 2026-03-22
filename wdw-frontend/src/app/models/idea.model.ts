@@ -1,6 +1,8 @@
+import { Creatable } from './base.model';
+
 export type IdeaCategory = 'ETEN' | 'CULTUUR' | 'SPORT' | 'OVERIG';
 
-export interface Idea {
+export interface Idea extends Creatable {
   id: string;
   title: string;
   description?: string;
@@ -16,5 +18,4 @@ export interface Idea {
   imageUrl?: string;
   votes: number;
   hasVoted: boolean;
-  createdAt: Date;
 }

@@ -1,19 +1,18 @@
+import { Creatable, Timestamped } from './base.model';
+
 export type AvailabilityStatus = 'AVAILABLE' | 'MAYBE' | 'UNAVAILABLE';
 
-export interface DateSlot {
+export interface DateSlot extends Creatable {
   id: string;
   date: Date;
   planId: string;
-  createdAt: Date;
 }
 
-export interface Availability {
+export interface Availability extends Timestamped {
   id: string;
   userId: string;
   dateSlotId: string;
   status: AvailabilityStatus;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface CalendarDay {

@@ -1,6 +1,8 @@
+import { Creatable } from './base.model';
+
 export type ActivityCategory = 'ETEN' | 'CULTUUR' | 'SPORT' | 'OVERIG';
 
-export interface Activity {
+export interface Activity extends Creatable {
   id: string;
   title: string;
   description?: string;
@@ -12,13 +14,11 @@ export interface Activity {
   imageUrl?: string;
   votes: number;
   hasVoted: boolean;
-  createdAt: Date;
 }
 
-export interface Vote {
+export interface Vote extends Creatable {
   id: string;
   userId: string;
   activityId?: string;
   ideaId?: string;
-  createdAt: Date;
 }

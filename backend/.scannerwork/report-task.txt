@@ -1,0 +1,6 @@
+projectKey=wat-doen-we
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=wat-doen-we
+ceTaskId=6777fb40-02e9-4383-8600-9f32cfaf6e71
+ceTaskUrl=http://localhost:9000/api/ce/task?id=6777fb40-02e9-4383-8600-9f32cfaf6e71
