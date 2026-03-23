@@ -190,6 +190,25 @@ export class CalendarService {
     }
   }
 
+  async getOrCreateDateSlot(planId: string, date: Date): Promise<DateSlot | null> {
+    // First check if slot exists
+    const existingSlots = this.dateSlots().filter(s => s.planId === planId);
+    const existing = existingSlots.find(s => {
+      const slotDate = new Date(s.date);
+      slotDate.setHours(0, 0, 0, 0);
+      const targetDate = new Date(date);
+      targetDate.setHours(0, 0, 0, 0);
+      return slotDate.getTime() === targetDate.getTime();
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    // Create new slot
+    return this.createDateSlot(planId, date);
+  }
+
   private createLocalDateSlot(planId: string, date: Date): DateSlot {
     const slot: DateSlot = {
       id: crypto.randomUUID(),
@@ -382,6 +401,7 @@ export class CalendarService {
       isCurrentMonth,
       isToday,
       isWeekend,
+      slotId: slot?.id || null,
       participants: participantAvailabilities,
       availabilityCount,
       isPerfectMatch,

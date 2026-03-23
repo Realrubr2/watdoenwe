@@ -238,6 +238,73 @@
 .wdw-plan-status { margin: 0.25rem 0 0; color: var(--color-on-surface-variant); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; }
 .wdw-plan-chevron { color: var(--color-outline-variant); margin-left: 0.5rem; }
 
+.wdw-plan-row-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.wdw-plan-row-wrapper .wdw-plan-row {
+  flex: 1;
+}
+
+.wdw-share-btn {
+  position: absolute;
+  right: 0.5rem;
+  padding: 0.5rem;
+  border: none;
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease, background 200ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wdw-plan-row-wrapper:hover .wdw-share-btn {
+  opacity: 1;
+}
+
+.wdw-share-btn:hover {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.wdw-delete-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.5rem;
+  border: none;
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease, background 200ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wdw-plan-row-wrapper:has(.wdw-share-btn):hover .wdw-delete-btn {
+  opacity: 1;
+  right: 3rem;
+}
+
+.wdw-plan-row-wrapper:not(:has(.wdw-share-btn)):hover .wdw-delete-btn {
+  opacity: 1;
+}
+
+.wdw-delete-btn:hover {
+  background: var(--color-error);
+  color: var(--color-on-error);
+}
+
 /* --- Home semantic classes (first pass) --- */
 
 .home-main {

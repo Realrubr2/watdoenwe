@@ -133,6 +133,18 @@ export async function initDb(): Promise<void> {
     
     CREATE INDEX IF NOT EXISTS idx_vote_user ON votes(user_id);
     CREATE INDEX IF NOT EXISTS idx_vote_idea ON votes(idea_id);
+    
+    CREATE TABLE IF NOT EXISTS sessions (
+      id TEXT PRIMARY KEY,
+      owner_name TEXT NOT NULL,
+      participants TEXT NOT NULL,
+      plan_id TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT,
+      FOREIGN KEY (plan_id) REFERENCES plans(id)
+    );
+    
+    CREATE INDEX IF NOT EXISTS idx_session_plan ON sessions(plan_id);
   `);
   
   console.log('SQLite database initialized and synced.');
@@ -406,6 +418,40 @@ export function getAvailabilities(planId: string) {
     LEFT JOIN date_slots ds ON a.date_slot_id = ds.id
     WHERE a.plan_id = ?
   `).all(planId) as any[];
+}
+
+// Session functions
+export function getSessionById(id: string) {
+  return db!.prepare('SELECT * FROM sessions WHERE id = ?').get(id) as any;
+}
+
+export function createSession(data: any) {
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  const participants = JSON.stringify([data.ownerName]);
+  db!.prepare(`
+    INSERT INTO sessions (id, owner_name, participants, plan_id, created_at)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(id, data.ownerName, participants, data.planId, now);
+  return getSessionById(id);
+}
+
+export function addParticipantToSession(sessionId: string, name: string) {
+  const now = new Date().toISOString();
+  const session = getSessionById(sessionId);
+  if (!session) return null;
+  
+  const participants = JSON.parse(session.participants);
+  if (!participants.includes(name)) {
+    participants.push(name);
+  }
+  
+  db!.prepare(`
+    UPDATE sessions SET participants = ?, updated_at = ?
+    WHERE id = ?
+  `).run(JSON.stringify(participants), now, sessionId);
+  
+  return getSessionById(sessionId);
 }
 
 export function getUserAvailability(userId: string, planId: string) {

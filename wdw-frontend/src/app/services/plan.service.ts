@@ -97,38 +97,46 @@ export class PlanService {
   }
 
   async createPlan(name: string, mode: PlanMode, hostId: string): Promise<Plan | null> {
+    console.log('createPlan called with:', name, mode, hostId);
     try {
       const response = await fetch(buildUrl(API_CONFIG.endpoints.plans.create), {
         method: 'POST',
         headers: this.getAuthHeaders(),
         body: JSON.stringify({ name, mode }),
       });
+      console.log('API response status:', response.status);
 
       if (!response.ok) {
         throw new Error('Failed to create plan');
       }
 
       const data = await response.json();
+      console.log('API response data:', data);
       
+      const planData = data.plan || data;
       const plan: Plan = {
-        id: data.id,
-        name: data.name,
-        mode: data.mode,
-        status: data.status,
-        hostId: data.hostId,
-        createdAt: new Date(data.createdAt),
-        updatedAt: new Date(data.updatedAt),
+        id: planData.id,
+        name: planData.name,
+        mode: planData.mode,
+        status: planData.status,
+        hostId: planData.hostId,
+        shareToken: planData.shareToken,
+        createdAt: new Date(planData.createdAt),
+        updatedAt: new Date(planData.updatedAt),
       };
 
       this.plans.update(plans => [...plans, plan]);
       this.saveToStorage();
       this.currentPlan.set(plan);
+      console.log('Created plan from API:', plan);
 
       return plan;
     } catch (error) {
-      console.error('Error creating plan:', error);
+      console.error('Error creating plan, falling back to local:', error);
       // Fallback to local creation
-      return this.createLocalPlan(name, mode, hostId);
+      const localPlan = this.createLocalPlan(name, mode, hostId);
+      console.log('Created local plan:', localPlan);
+      return localPlan;
     }
   }
 
@@ -139,6 +147,7 @@ export class PlanService {
       mode,
       status: 'DRAFT',
       hostId,
+      shareToken: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -162,22 +171,24 @@ export class PlanService {
       }
 
       const data = await response.json();
+      const planData = data.plan || data;
       
       const plan: Plan = {
-        id: data.plan.id,
-        name: data.plan.name,
-        mode: data.plan.mode,
-        status: data.plan.status,
-        hostId: data.plan.hostId,
-        createdAt: new Date(data.plan.createdAt),
-        updatedAt: new Date(data.plan.updatedAt),
+        id: planData.id,
+        name: planData.name,
+        mode: planData.mode,
+        status: planData.status,
+        hostId: planData.hostId,
+        shareToken: planData.shareToken,
+        createdAt: new Date(planData.createdAt),
+        updatedAt: new Date(planData.updatedAt),
       };
 
       return plan;
     } catch (error) {
       console.error('Error fetching plan:', error);
-      // Fallback to local
-      return this.getPlan(id);
+      // Fallback to local plan
+      return this.getPlanLocal(id) || null;
     }
   }
 
@@ -219,5 +230,37 @@ export class PlanService {
 
   activatePlan(id: string): void {
     this.updatePlan(id, { status: 'ACTIVE' });
+  }
+
+  async getPlanByShareToken(shareToken: string): Promise<Plan | null> {
+    try {
+      const response = await fetch(buildUrl(`/plans/share/${shareToken}`), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch plan by share token');
+      }
+
+      const data = await response.json();
+      
+      const planData = data.plan || data;
+      const plan: Plan = {
+        id: planData.id,
+        name: planData.name,
+        mode: planData.mode,
+        status: planData.status,
+        hostId: planData.hostId,
+        shareToken: planData.shareToken,
+        createdAt: new Date(planData.createdAt),
+        updatedAt: new Date(planData.updatedAt),
+      };
+
+      return plan;
+    } catch (error) {
+      console.error('Error fetching plan by share token:', error);
+      return null;
+    }
   }
 }

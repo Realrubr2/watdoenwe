@@ -14,10 +14,34 @@ const PlanSchema = z.object({
   mode: z.enum(['FIXED_DATE', 'FIXED_ACTIVITY', 'FLEXIBLE']),
   status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED']),
   hostId: z.string(),
+  shareToken: z.string().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 
+// Public endpoint - get plan by share token (must be before auth middleware)
+plans.get('/share/:shareToken', async (c) => {
+  const shareToken = c.req.param('shareToken');
+  
+  // Scan for the plan with this share token (less efficient but no GSI needed)
+  const result = await docClient.send(new QueryCommand({
+    TableName: TABLE_NAME,
+    FilterExpression: 'shareToken = :shareToken AND SK = :sk',
+    ExpressionAttributeValues: {
+      ':shareToken': shareToken,
+      ':sk': 'METADATA'
+    },
+  }));
+
+  if (!result.Items || result.Items.length === 0) {
+    return c.json({ error: 'Plan not found' }, 404);
+  }
+
+  const plan = result.Items[0];
+  return c.json({ plan });
+});
+
+// Protected routes below
 plans.use('*', authMiddleware);
 
 plans.get('/', async (c) => {
@@ -46,6 +70,7 @@ plans.post(
     const user = c.get('user');
     const { name, mode } = c.req.valid('json');
     const planId = uuidv4();
+    const shareToken = uuidv4().substring(0, 8);
     const now = new Date().toISOString();
 
     const plan = {
@@ -56,6 +81,7 @@ plans.post(
       mode,
       status: 'DRAFT',
       hostId: user.id,
+      shareToken,
       createdAt: now,
       updatedAt: now,
     };

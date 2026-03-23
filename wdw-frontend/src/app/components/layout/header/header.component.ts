@@ -21,14 +21,8 @@ import { AuthService } from '../../../services';
             <a routerLink="/dashboard" class="text-on-surface-variant hover:text-primary transition-colors font-medium">
               Dashboard
             </a>
-            <a routerLink="/vaste-datum" class="text-on-surface-variant hover:text-primary transition-colors font-medium">
-              Vaste Datum
-            </a>
-            <a routerLink="/vaste-activiteit" class="text-on-surface-variant hover:text-primary transition-colors font-medium">
-              Vaste Activiteit
-            </a>
-            <a routerLink="/we-zien-wel" class="text-on-surface-variant hover:text-primary transition-colors font-medium">
-              We Zien Wel
+            <a routerLink="/dashboard" class="text-on-surface-variant hover:text-primary transition-colors font-medium">
+              Mijn Plannen
             </a>
           </nav>
         }

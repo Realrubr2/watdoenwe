@@ -5,6 +5,7 @@ import plans from './routes/plans';
 import activities from './routes/activities';
 import ideas from './routes/ideas';
 import availability from './routes/availability';
+import sessions from './routes/sessions';
 
 const app = new Hono();
 
@@ -12,8 +13,9 @@ const app = new Hono();
 app.route('/auth', auth);
 app.route('/plans', plans);
 app.route('/activities', activities);
-app.route('/ideas', ideas); 
+app.route('/ideas', ideas);
 app.route('/availability', availability);
+app.route('/sessions', sessions);
 
 // OpenAPI Docs
 app.get(

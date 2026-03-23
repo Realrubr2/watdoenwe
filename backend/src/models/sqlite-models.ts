@@ -239,3 +239,27 @@ export class Vote {
   @field({ name: 'created_at', dbtype: 'TEXT NOT NULL' })
   createdAt!: string;
 }
+
+// Session Model
+@table({ name: 'sessions' })
+export class Session {
+  @id({ name: 'id', dbtype: 'TEXT NOT NULL' })
+  id!: string;
+
+  @field({ name: 'owner_name', dbtype: 'TEXT NOT NULL' })
+  ownerName!: string;
+
+  @field({ name: 'participants', dbtype: 'TEXT NOT NULL' }) // JSON array of participant names
+  participants!: string;
+
+  @index('idx_session_plan')
+  @fk('fk_session_plan', 'plans', 'id')
+  @field({ name: 'plan_id', dbtype: 'TEXT NOT NULL' })
+  planId!: string;
+
+  @field({ name: 'created_at', dbtype: 'TEXT NOT NULL' })
+  createdAt!: string;
+
+  @field({ name: 'updated_at', dbtype: 'TEXT' })
+  updatedAt?: string;
+}

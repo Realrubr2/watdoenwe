@@ -22,6 +22,7 @@ export interface CalendarDay {
   isCurrentMonth: boolean;
   isToday: boolean;
   isWeekend: boolean;
+  slotId: string | null;
   participants: ParticipantAvailability[];
   availabilityCount: number;
   isPerfectMatch: boolean;

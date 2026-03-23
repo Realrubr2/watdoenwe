@@ -6,7 +6,7 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <p class="text-sm font-bold uppercase tracking-widest text-primary mb-1">Planning voor</p>
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Zaterdag 14 Maart</h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">{{ planName() }}</h1>
       </div>
       <div class="badge-primary">
         <span class="material-symbols-outlined text-lg mr-1">lightbulb</span>
@@ -24,12 +24,34 @@
           <span class="material-symbols-outlined text-primary text-2xl">lightbulb</span>
           <span class="font-bold text-lg">Nieuw Idee</span>
         </div>
+        <input
+          type="text"
+          [ngModel]="newActivityTitle()"
+          (ngModelChange)="newActivityTitle.set($event)"
+          placeholder="Titel van de activiteit"
+          class="input-field mb-3"
+        />
         <textarea
-          [(ngModel)]="newActivityTitle"
-          placeholder="Waar heb je zin in?"
-          class="textarea-field mb-4"
-          rows="3"
+          [ngModel]="newActivityDescription()"
+          (ngModelChange)="newActivityDescription.set($event)"
+          placeholder="Beschrijving (optioneel)"
+          class="textarea-field mb-3"
+          rows="2"
         ></textarea>
+        <input
+          type="url"
+          [ngModel]="newActivityLink()"
+          (ngModelChange)="newActivityLink.set($event)"
+          placeholder="Link (optioneel)"
+          class="input-field mb-3"
+        />
+        <input
+          type="url"
+          [ngModel]="newActivityImageUrl()"
+          (ngModelChange)="newActivityImageUrl.set($event)"
+          placeholder="Afbeelding URL (optioneel)"
+          class="input-field mb-4"
+        />
         <button
           (click)="addActivity()"
           [disabled]="!newActivityTitle()"
@@ -81,81 +103,17 @@
       </div>
     }
 
-    <!-- Placeholder cards for demo -->
-    <div class="masonry-item">
-      <div class="card card-hover overflow-hidden">
-        <div class="aspect-[4/5] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <span class="material-symbols-outlined text-6xl text-primary/30">local_bar</span>
-        </div>
-        <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/10 shadow-sm flex items-center gap-1">
-          <span class="material-symbols-outlined text-error text-lg filled">favorite</span>
-          <span class="text-xs font-bold">5</span>
-        </div>
-        <div class="p-4">
-          <h3 class="font-bold text-sm leading-tight mb-2">Signature Cocktails @ Blue Note</h3>
-          <p class="text-xs text-on-surface-variant leading-relaxed line-clamp-2">Ze hebben een nieuwe lentekaart met vlierbloesem infusies...</p>
+    <!-- Empty state -->
+    @if (activities().length === 0) {
+      <div class="masonry-item col-span-2">
+        <div class="card p-8 text-center">
+          <span class="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">lightbulb</span>
+          <p class="text-on-surface-variant">Nog geen activiteiten toegevoegd.</p>
+          <p class="text-sm text-on-surface-variant/70">Voeg een activiteit toe met het formulier hierboven.</p>
         </div>
       </div>
-    </div>
-
-    <div class="masonry-item">
-      <div class="card card-hover p-4">
-        <div class="absolute top-3 right-3 flex items-center gap-1">
-          <span class="material-symbols-outlined text-on-surface-variant text-lg">favorite_border</span>
-          <span class="text-xs font-bold text-on-surface-variant">3</span>
-        </div>
-        <h3 class="font-bold text-sm leading-tight mb-2">Picknick in het Noorderpark</h3>
-        <p class="text-xs text-on-surface-variant leading-relaxed mb-3">Iedereen neemt iets kleins mee. Ik regel de prosecco en glazen!</p>
-        <div class="flex -space-x-2">
-          <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">J</div>
-          <div class="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">L</div>
-          <div class="w-6 h-6 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">M</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="masonry-item">
-      <div class="card card-hover overflow-hidden">
-        <div class="aspect-[4/5] bg-gradient-to-br from-tertiary/20 to-tertiary/5 flex items-center justify-center">
-          <span class="material-symbols-outlined text-6xl text-tertiary/30">bakery_dining</span>
-        </div>
-        <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/10 shadow-sm flex items-center gap-1">
-          <span class="material-symbols-outlined text-on-surface-variant text-lg">favorite_border</span>
-          <span class="text-xs font-bold">2</span>
-        </div>
-        <div class="p-4">
-          <h3 class="font-bold text-sm leading-tight mb-2">Donut Pop-up Store</h3>
-          <p class="text-xs text-on-surface-variant leading-relaxed line-clamp-2 mb-2">Alleen deze zaterdag geopend...</p>
-          <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-            <div class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm">schedule</span>
-              <span>11:00 - 15:00</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm">location_on</span>
-              <span>Centrum</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="masonry-item">
-      <div class="card card-hover p-4 border-l-4 border-l-primary">
-        <div class="absolute top-3 right-3 flex items-center gap-1">
-          <span class="material-symbols-outlined text-error text-lg filled">favorite</span>
-          <span class="text-xs font-bold">4</span>
-        </div>
-        <h3 class="font-bold text-sm leading-tight mb-2">Reserveren bij 'Opa's'</h3>
-        <p class="text-xs text-on-surface-variant leading-relaxed">Zeker weten dat we hier willen eten?</p>
-      </div>
-    </div>
+    }
   </section>
 </main>
-
-<!-- Floating Action Button -->
-<button class="fab" (click)="showAddModal = true">
-  <span class="material-symbols-outlined text-3xl">add</span>
-</button>
 
 <app-mobile-nav></app-mobile-nav>

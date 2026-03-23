@@ -1,6 +1,6 @@
 <app-header></app-header>
 
-  <main class="wdw-main">
+<main class="wdw-main">
   <!-- Hero Section -->
   <section class="wdw-section">
     <div class="wdw-subtitle">
@@ -12,7 +12,11 @@
 
   <!-- Main CTA Button -->
   <section class="wdw-section">
-    <button class="btn-primary w-full wdw-cta">
+    <button 
+      class="btn-primary w-full wdw-cta" 
+      (click)="openCreatePlanModal()"
+      [disabled]="!authService.isAuthenticated() && !showNamePopup()"
+    >
       <span class="material-symbols-outlined">add_circle</span>
       START NIEUW PLAN
     </button>
@@ -77,21 +81,39 @@
       <h2 class="wdw-label wdw-label--muted">Recente Plannen</h2>
       <div class="wdw-list">
         @for (plan of recentPlans(); track plan.id) {
-          <a
-            [routerLink]="getPlanRoute(plan.mode)"
-            class="wdw-plan-row"
-          >
-            <div class="wdw-plan-icon">
-              <span class="material-symbols-outlined wdw-plan-icon__symbol">group</span>
-            </div>
-            <div class="wdw-plan-text">
-              <h3 class="wdw-plan-title">{{ plan.name }}</h3>
-              <p class="wdw-plan-status">
-                {{ getPlanStatusText(plan.status) }}
-              </p>
-            </div>
-            <span class="material-symbols-outlined wdw-plan-chevron">chevron_right</span>
-          </a>
+          <div class="wdw-plan-row-wrapper">
+            <a
+              [routerLink]="[getPlanRoute(plan.mode), plan.id]"
+              class="wdw-plan-row"
+            >
+              <div class="wdw-plan-icon">
+                <span class="material-symbols-outlined wdw-plan-icon__symbol">group</span>
+              </div>
+              <div class="wdw-plan-text">
+                <h3 class="wdw-plan-title">{{ plan.name }}</h3>
+                <p class="wdw-plan-status">
+                  {{ getPlanStatusText(plan.status) }}
+                </p>
+              </div>
+              <span class="material-symbols-outlined wdw-plan-chevron">chevron_right</span>
+            </a>
+            @if (plan.shareToken) {
+              <button
+                class="wdw-share-btn"
+                (click)="openSharePopup(plan); $event.preventDefault()"
+                title="Delen"
+              >
+                <span class="material-symbols-outlined">share</span>
+              </button>
+            }
+            <button
+              class="wdw-delete-btn"
+              (click)="deletePlan(plan.id, $event)"
+              title="Verwijderen"
+            >
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
         }
       </div>
     </section>
@@ -113,3 +135,111 @@
     <span class="material-symbols-outlined text-primary text-xl">open_in_new</span>
   </div>
 </div>
+
+<!-- Share Popup -->
+<app-share-popup
+  [isOpen]="showSharePopup()"
+  [shareToken]="currentShareToken()"
+  (isOpenChange)="showSharePopup.set($event)"
+></app-share-popup>
+
+<!-- Name Popup (for new users) -->
+<app-guest-name-popup
+  [isOpen]="showNamePopup()"
+  (isOpenChange)="showNamePopup.set($event)"
+  (nameSubmit)="onNameSubmit($event)"
+></app-guest-name-popup>
+
+<!-- Create Plan Modal -->
+@if (showCreatePlanModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="showCreatePlanModal.set(false)"></div>
+    
+    <!-- Modal -->
+    <div class="relative bg-surface-container-lowest shadow-2xl rounded-lg w-full max-w-md p-8">
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">Nieuw Plan</h2>
+          <p class="text-on-surface-variant mt-1">Maak een nieuw plan aan om te delen met vrienden</p>
+        </div>
+        <button class="p-2 rounded-full hover:bg-surface-container-high transition-colors" (click)="showCreatePlanModal.set(false)">
+          <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+      </div>
+
+      <!-- Plan Name Input -->
+      <div class="mb-6">
+        <label class="form-label">Plan naam</label>
+        <input
+          type="text"
+          [value]="planName()"
+          (input)="planName.set($any($event.target).value)"
+          placeholder="Bijv. Weekendje Ardennen"
+          class="input-field w-full"
+        />
+      </div>
+
+      <!-- Plan Mode Selection -->
+      <div class="mb-6">
+        <label class="form-label">Type plan</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            class="p-4 rounded-lg border transition-all text-center"
+            [class.border-primary]="selectedMode() === 'FIXED_DATE'"
+            [class.bg-primary/10]="selectedMode() === 'FIXED_DATE'"
+            [class.border-outline]="selectedMode() !== 'FIXED_DATE'"
+            (click)="selectPlanMode('FIXED_DATE')"
+          >
+            <span class="material-symbols-outlined text-2xl mb-1">calendar_today</span>
+            <p class="text-xs font-medium">Datum</p>
+          </button>
+          <button
+            class="p-4 rounded-lg border transition-all text-center"
+            [class.border-primary]="selectedMode() === 'FIXED_ACTIVITY'"
+            [class.bg-primary/10]="selectedMode() === 'FIXED_ACTIVITY'"
+            [class.border-outline]="selectedMode() !== 'FIXED_ACTIVITY'"
+            (click)="selectPlanMode('FIXED_ACTIVITY')"
+          >
+            <span class="material-symbols-outlined text-2xl mb-1">favorite</span>
+            <p class="text-xs font-medium">Activiteit</p>
+          </button>
+          <button
+            class="p-4 rounded-lg border transition-all text-center"
+            [class.border-primary]="selectedMode() === 'FLEXIBLE'"
+            [class.bg-primary/10]="selectedMode() === 'FLEXIBLE'"
+            [class.border-outline]="selectedMode() !== 'FLEXIBLE'"
+            (click)="selectPlanMode('FLEXIBLE')"
+          >
+            <span class="material-symbols-outlined text-2xl mb-1">help</span>
+            <p class="text-xs font-medium">We zien wel</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date Selection (only for FIXED_DATE) -->
+      @if (selectedMode() === 'FIXED_DATE') {
+        <div class="mb-6">
+          <label class="form-label">Datum</label>
+          <input
+            type="date"
+            [ngModel]="selectedDate()"
+            (ngModelChange)="selectedDate.set($event)"
+            class="input-field w-full"
+            [min]="today"
+          />
+        </div>
+      }
+
+      <!-- Create Button -->
+      <button
+        class="btn-primary w-full"
+        [disabled]="!planName().trim() || (selectedMode() === 'FIXED_DATE' && !selectedDate()) || !authService.user()"
+        (click)="createPlan()"
+      >
+        <span class="material-symbols-outlined">add_circle</span>
+        Maak plan aan
+      </button>
+    </div>
+  </div>
+}

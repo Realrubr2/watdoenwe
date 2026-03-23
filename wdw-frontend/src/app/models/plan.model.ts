@@ -9,6 +9,7 @@ export interface Plan extends Timestamped {
   mode: PlanMode;
   status: PlanStatus;
   hostId: string;
+  shareToken?: string;
   date?: Date;
   activityName?: string;
   activityLocation?: string;

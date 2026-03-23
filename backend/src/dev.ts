@@ -8,6 +8,7 @@ import plans from './routes/plans.mock';
 import activities from './routes/activities.mock';
 import ideas from './routes/ideas.mock';
 import availability from './routes/availability.mock';
+import sessions from './routes/sessions';
 
 const app = new Hono();
 
@@ -24,12 +25,13 @@ app.route('/plans', plans);
 app.route('/activities', activities);
 app.route('/ideas', ideas);
 app.route('/availability', availability);
+app.route('/sessions', sessions);
 
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', mode: 'development-sqlite' }));
 
 // Root endpoint
-app.get('/', (c) => c.json({ 
+app.get('/', (c) => c.json({
   message: 'Wat Doen We API - Development Mode (SQLite)',
   endpoints: {
     auth: '/auth',
@@ -37,6 +39,7 @@ app.get('/', (c) => c.json({
     activities: '/activities',
     ideas: '/ideas',
     availability: '/availability',
+    sessions: '/sessions',
     health: '/health'
   }
 }));

@@ -4,85 +4,111 @@
   <div class="blob w-80 h-80 bg-surface-container-high -bottom-20 -left-20"></div>
 
   <div class="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-black text-primary tracking-tighter mb-2">WDW?</h1>
-      <p class="text-on-surface-variant font-medium">Wat De Week?</p>
-    </div>
-
-    <!-- Welcome Card -->
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-lg shadow-xl p-8 mb-8">
-      <!-- Avatar Cluster -->
-      <div class="flex items-center justify-center mb-6">
-        <div class="relative">
-          <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary text-2xl font-bold">
-            {{ hostInitial }}
+    @if (loading()) {
+      <!-- Loading State -->
+      <div class="text-center">
+        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-on-surface-variant">Plan laden...</p>
+      </div>
+    } @else if (error()) {
+      <!-- Error State -->
+      <div class="w-full max-w-md bg-surface-container-lowest rounded-lg shadow-xl p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-error text-3xl">error</span>
+        </div>
+        <h2 class="text-2xl font-bold text-center tracking-tight mb-2">Oeps!</h2>
+        <p class="text-on-surface-variant text-center mb-6">{{ error() }}</p>
+        <a routerLink="/" class="btn-primary w-full">
+          Terug naar home
+          <span class="material-symbols-outlined">home</span>
+        </a>
+      </div>
+    } @else {
+      <!-- Welcome Card -->
+      <div class="w-full max-w-md bg-surface-container-lowest rounded-lg shadow-xl p-8 mb-8">
+        <!-- Avatar Cluster -->
+        <div class="flex items-center justify-center mb-6">
+          <div class="relative">
+            <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary text-2xl font-bold">
+              {{ hostInitial() }}
+            </div>
+            <span class="material-symbols-outlined absolute -top-1 -right-1 text-primary text-2xl">auto_awesome</span>
           </div>
-          <span class="material-symbols-outlined absolute -top-1 -right-1 text-primary text-2xl">auto_awesome</span>
+        </div>
+
+        <!-- Greeting -->
+        <h2 class="text-3xl font-bold text-center tracking-tight mb-2">
+          Hi {{ guestName() || 'daar' }}!
+        </h2>
+        <p class="text-on-surface-variant text-center mb-8">
+          <span class="font-semibold">{{ hostName() }}</span> nodigt je uit voor
+          <span class="font-semibold text-primary">'{{ eventName() }}'</span>
+        </p>
+
+        @if (plan()) {
+          <!-- Plan Info -->
+          <div class="bg-surface-container-low rounded-lg p-4 mb-6 text-left">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-primary">info</span>
+              <span class="font-semibold text-sm">Over dit plan</span>
+            </div>
+            <p class="text-on-surface-variant text-sm">
+              Status: {{ getPlanStatusText(plan()!.status) }}
+            </p>
+            <p class="text-on-surface-variant text-sm">
+              Type: {{ getPlanModeText(plan()!.mode) }}
+            </p>
+          </div>
+        }
+
+        <!-- CTA Button -->
+        <button
+          (click)="showNamePopup.set(true)"
+          class="btn-primary w-full text-lg py-4 flex items-center justify-center gap-3"
+        >
+          Doe mee!
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+
+      <!-- Feature Bento Grid -->
+      <div class="w-full max-w-md grid grid-cols-2 gap-4 mb-8">
+        <!-- Feature 1: Data Pinnen -->
+        <div class="bg-surface-container-lowest rounded-lg p-6 border border-outline-variant/10">
+          <div class="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">calendar_today</span>
+          </div>
+          <h3 class="font-bold text-sm mb-1">Data Pinnen</h3>
+          <p class="text-on-surface-variant text-xs">Geef aan wanneer je vrij bent zonder account</p>
+        </div>
+
+        <!-- Feature 2: Ideeën Delen -->
+        <div class="bg-surface-container-lowest rounded-lg p-6 border border-outline-variant/10">
+          <div class="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">lightbulb</span>
+          </div>
+          <h3 class="font-bold text-sm mb-1">Ideeën Delen</h3>
+          <p class="text-on-surface-variant text-xs">Gooi je wildste plannen op de Ideas Wall</p>
         </div>
       </div>
 
-      <!-- Greeting -->
-      <h2 class="text-3xl font-bold text-center tracking-tight mb-2">
-        Hi {{ guestName() || 'daar' }}!
-      </h2>
-      <p class="text-on-surface-variant text-center mb-8">
-        <span class="font-semibold">{{ hostName }}</span> nodigt je uit voor
-        <span class="font-semibold text-primary">'{{ eventName }}'</span>
-      </p>
-
-      <!-- Name Input -->
-      <div class="mb-6">
-        <label class="form-label">Je naam</label>
-        <input
-          type="text"
-          [(ngModel)]="guestName"
-          placeholder="Hoe mogen we je noemen?"
-          class="input-field"
-        />
-      </div>
-
-      <!-- CTA Button -->
-      <button
-        (click)="enterPlan()"
-        [disabled]="!guestName()"
-        class="btn-primary w-full text-lg py-4 flex items-center justify-center gap-3"
-      >
-        Bekijk het plan
-        <span class="material-symbols-outlined">arrow_forward</span>
-      </button>
-    </div>
-
-    <!-- Feature Bento Grid -->
-    <div class="w-full max-w-md grid grid-cols-2 gap-4 mb-8">
-      <!-- Feature 1: Data Pinnen -->
-      <div class="bg-surface-container-lowest rounded-lg p-6 border border-outline-variant/10">
-        <div class="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mb-4">
-          <span class="material-symbols-outlined text-primary text-2xl">calendar_today</span>
+      <!-- Footer Trust Badge -->
+      <div class="text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full mb-4">
+          <span class="material-symbols-outlined text-primary text-lg">verified_user</span>
+          <span class="text-sm font-bold text-on-surface-variant">Geen account nodig</span>
         </div>
-        <h3 class="font-bold text-sm mb-1">Data Pinnen</h3>
-        <p class="text-on-surface-variant text-xs">Geef aan wanneer je vrij bent zonder account</p>
+        <p class="text-xs text-on-surface-variant max-w-xs mx-auto">
+          WDW? helpt vrienden samen te komen zonder de ruis van traditionele agenda's
+        </p>
       </div>
-
-      <!-- Feature 2: Ideeën Delen -->
-      <div class="bg-surface-container-lowest rounded-lg p-6 border border-outline-variant/10">
-        <div class="w-12 h-12 rounded bg-primary/10 flex items-center justify-center mb-4">
-          <span class="material-symbols-outlined text-primary text-2xl">lightbulb</span>
-        </div>
-        <h3 class="font-bold text-sm mb-1">Ideeën Delen</h3>
-        <p class="text-on-surface-variant text-xs">Gooi je wildste plannen op de Ideas Wall</p>
-      </div>
-    </div>
-
-    <!-- Footer Trust Badge -->
-    <div class="text-center">
-      <div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full mb-4">
-        <span class="material-symbols-outlined text-primary text-lg">verified_user</span>
-        <span class="text-sm font-bold text-on-surface-variant">Geen account nodig</span>
-      </div>
-      <p class="text-xs text-on-surface-variant max-w-xs mx-auto">
-        WDW? helpt vrienden samen te komen zonder de ruis van traditionele agenda's
-      </p>
-    </div>
+    }
   </div>
 </div>
+
+<!-- Guest Name Popup -->
+<app-guest-name-popup
+  [isOpen]="showNamePopup()"
+  (isOpenChange)="showNamePopup.set($event)"
+  (nameSubmit)="enterPlan($event)"
+></app-guest-name-popup>
