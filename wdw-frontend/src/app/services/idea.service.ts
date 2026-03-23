@@ -254,4 +254,29 @@ export class IdeaService {
       }
     }
   }
+
+  toggleVote(ideaId: string, userId: string): void {
+    const existingVote = this.votes().find(
+      v => v.ideaId === ideaId && v.userId === userId
+    );
+
+    const idea = this.ideas().find(i => i.id === ideaId);
+    if (!idea) return;
+
+    if (existingVote) {
+      // Remove vote
+      this.votes.update(votes => votes.filter(v => v.id !== existingVote.id));
+      this.updateIdea(ideaId, { votes: Math.max(0, idea.votes - 1), hasVoted: false });
+    } else {
+      // Add vote
+      const vote: Vote = {
+        id: crypto.randomUUID(),
+        ideaId,
+        userId,
+        createdAt: new Date()
+      };
+      this.votes.update(votes => [...votes, vote]);
+      this.updateIdea(ideaId, { votes: idea.votes + 1, hasVoted: true });
+    }
+  }
 }

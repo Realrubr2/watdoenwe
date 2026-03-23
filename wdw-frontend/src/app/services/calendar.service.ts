@@ -291,6 +291,100 @@ export class CalendarService {
     this.saveToStorage();
   }
 
-  // ... Keep other methods unchanged for brevity
-  // The rest of the file remains the same as the original
+  getCalendarDays(
+    year: number,
+    month: number,
+    planId: string,
+    participants: { id: string; name: string }[]
+  ): CalendarDay[] {
+    const days: CalendarDay[] = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get date slots and availabilities for this plan
+    const dateSlots = this.getDateSlotsForPlan(planId);
+    const availabilities = this.getAvailabilityForPlan(planId);
+
+    // Get participant colors
+    const colors = this.participantColors;
+
+    // Add days from previous month to fill the first week
+    const startDayOfWeek = firstDay.getDay();
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      const date = new Date(year, month - 1, prevMonthLastDay - i);
+      days.push(this.createCalendarDay(date, false, today, dateSlots, availabilities, participants, colors));
+    }
+
+    // Add days of current month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const date = new Date(year, month, day);
+      days.push(this.createCalendarDay(date, true, today, dateSlots, availabilities, participants, colors));
+    }
+
+    // Add days from next month to fill the last week
+    const remainingDays = 42 - days.length; // 6 weeks * 7 days
+    for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(year, month + 1, day);
+      days.push(this.createCalendarDay(date, false, today, dateSlots, availabilities, participants, colors));
+    }
+
+    return days;
+  }
+
+  private createCalendarDay(
+    date: Date,
+    isCurrentMonth: boolean,
+    today: Date,
+    dateSlots: DateSlot[],
+    availabilities: Availability[],
+    participants: { id: string; name: string }[],
+    colors: string[]
+  ): CalendarDay {
+    const dayNumber = date.getDate();
+    const isToday = date.getTime() === today.getTime();
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+    // Find matching date slot
+    const slot = dateSlots.find(s => {
+      const slotDate = new Date(s.date);
+      slotDate.setHours(0, 0, 0, 0);
+      return slotDate.getTime() === date.getTime();
+    });
+
+    // Get availabilities for this date
+    const slotAvailabilities = slot
+      ? availabilities.filter(a => a.dateSlotId === slot.id)
+      : [];
+
+    // Build participant availability
+    const participantAvailabilities: ParticipantAvailability[] = participants.map((p, index) => {
+      const availability = slotAvailabilities.find(a => a.userId === p.id);
+      return {
+        userId: p.id,
+        userName: p.name,
+        userColor: colors[index % colors.length],
+        status: availability?.status || 'UNAVAILABLE',
+      };
+    });
+
+    const availabilityCount = participantAvailabilities.filter(
+      p => p.status === 'AVAILABLE'
+    ).length;
+    const isPerfectMatch =
+      availabilityCount === participants.length && participants.length > 0;
+
+    return {
+      date,
+      dayNumber,
+      isCurrentMonth,
+      isToday,
+      isWeekend,
+      participants: participantAvailabilities,
+      availabilityCount,
+      isPerfectMatch,
+    };
+  }
 }

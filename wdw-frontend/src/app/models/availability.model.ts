@@ -12,6 +12,7 @@ export interface Availability extends Timestamped {
   id: string;
   userId: string;
   dateSlotId: string;
+  planId?: string;
   status: AvailabilityStatus;
 }
 
