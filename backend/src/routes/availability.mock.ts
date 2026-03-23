@@ -1,18 +1,17 @@
-// Mock Availability Routes - Development version with in-memory data
+// Mock Availability Routes - Development version with SQLite
 import { Hono } from 'hono';
-import { v4 as uuidv4 } from 'uuid';
-import { 
-  mockDateSlots, 
-  mockAvailabilities,
-  mockUsers,
-  getMockDateSlotsByPlanId, 
-  createMockDateSlot,
-  createMockAvailability
-} from '../mocks/data';
+import {
+  getUserByToken,
+  getDateSlots,
+  createDateSlot,
+  deleteDateSlot,
+  getAvailabilities,
+  setAvailability,
+  getUserAvailability
+} from '../db-sqlite';
 
 const availability = new Hono<{ Variables: { user: any } }>();
 
-// Middleware to get user from token (simplified for mock)
 availability.use('*', async (c, next) => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -20,7 +19,7 @@ availability.use('*', async (c, next) => {
   }
   
   const token = authHeader.split(' ')[1];
-  const user = mockUsers.find((u) => u.guestToken === token);
+  const user = getUserByToken(token);
   
   if (!user) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -38,7 +37,7 @@ availability.get('/dates', async (c) => {
     return c.json({ error: 'planId is required' }, 400);
   }
 
-  const dateSlots = getMockDateSlotsByPlanId(planId);
+  const dateSlots = getDateSlots(planId);
   
   return c.json({ dateSlots });
 });
@@ -47,7 +46,7 @@ availability.get('/dates', async (c) => {
 availability.post('/dates', async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
-  const { date, planId } = body;
+  const { date, planId, startTime, endTime } = body;
 
   if (!date) {
     return c.json({ error: 'Date is required' }, 400);
@@ -57,29 +56,51 @@ availability.post('/dates', async (c) => {
     return c.json({ error: 'planId is required' }, 400);
   }
 
-  const newDateSlot = createMockDateSlot(date, planId);
-  mockDateSlots.push(newDateSlot);
+  const newDateSlot = createDateSlot({
+    date,
+    planId,
+    startTime,
+    endTime
+  });
 
   return c.json(newDateSlot, 201);
+});
+
+// DELETE /availability/dates/:id - Delete a date slot
+availability.delete('/dates/:id', async (c) => {
+  const dateSlotId = c.req.param('id');
+  
+  deleteDateSlot(dateSlotId);
+
+  return c.json({ success: true });
 });
 
 // GET /availability - Get all availabilities for a plan
 availability.get('/', async (c) => {
   const planId = c.req.query('planId');
+  const user = c.get('user');
   
   if (!planId) {
     return c.json({ error: 'planId is required' }, 400);
   }
 
-  // Get all availabilities for this plan's date slots
-  const planDateSlots = getMockDateSlotsByPlanId(planId);
-  const dateSlotIds = planDateSlots.map(ds => ds.id);
-  
-  const availabilities = mockAvailabilities.filter(a => 
-    dateSlotIds.includes(a.dateSlotId)
-  );
+  const availabilities = getAvailabilities(planId);
   
   return c.json({ availabilities });
+});
+
+// GET /availability/me - Get current user's availability for a plan
+availability.get('/me', async (c) => {
+  const planId = c.req.query('planId');
+  const user = c.get('user');
+  
+  if (!planId) {
+    return c.json({ error: 'planId is required' }, 400);
+  }
+
+  const userAvailabilities = getUserAvailability(user.id, planId);
+  
+  return c.json({ availabilities: userAvailabilities });
 });
 
 // POST /availability/:dateSlotId - Mark availability for a date slot
@@ -88,7 +109,7 @@ availability.post('/:dateSlotId', async (c) => {
   const dateSlotId = c.req.param('dateSlotId');
   const planId = c.req.query('planId');
   const body = await c.req.json();
-  const { status } = body;
+  const { status, note } = body;
   
   if (!planId) {
     return c.json({ error: 'planId is required' }, 400);
@@ -98,23 +119,13 @@ availability.post('/:dateSlotId', async (c) => {
     return c.json({ error: 'Valid status is required (AVAILABLE, MAYBE, UNAVAILABLE)' }, 400);
   }
 
-  // Check if date slot exists
-  const dateSlot = mockDateSlots.find(ds => ds.id === dateSlotId);
-  if (!dateSlot) {
-    return c.json({ error: 'Date slot not found' }, 404);
-  }
-
-  // Remove existing availability for this user and date slot
-  const existingIndex = mockAvailabilities.findIndex(
-    a => a.dateSlotId === dateSlotId && a.userId === user.id
-  );
-  
-  if (existingIndex !== -1) {
-    mockAvailabilities.splice(existingIndex, 1);
-  }
-
-  const newAvailability = createMockAvailability(dateSlotId, planId, user.id, status);
-  mockAvailabilities.push(newAvailability);
+  const newAvailability = setAvailability({
+    userId: user.id,
+    planId,
+    dateSlotId,
+    status,
+    note
+  });
 
   return c.json(newAvailability, 201);
 });

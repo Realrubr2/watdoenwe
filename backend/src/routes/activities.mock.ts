@@ -1,16 +1,14 @@
-// Mock Activities Routes - Development version with in-memory data
+// Mock Activities Routes - Development version with SQLite
 import { Hono } from 'hono';
-import { v4 as uuidv4 } from 'uuid';
-import { 
-  mockActivities, 
-  mockUsers,
-  getMockActivitiesByPlanId, 
-  createMockActivity 
-} from '../mocks/data';
+import {
+  getUserByToken,
+  getActivities,
+  createActivity,
+  deleteActivity
+} from '../db-sqlite';
 
 const activities = new Hono<{ Variables: { user: any } }>();
 
-// Middleware to get user from token (simplified for mock)
 activities.use('*', async (c, next) => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -18,7 +16,7 @@ activities.use('*', async (c, next) => {
   }
   
   const token = authHeader.split(' ')[1];
-  const user = mockUsers.find((u) => u.guestToken === token);
+  const user = getUserByToken(token);
   
   if (!user) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -36,7 +34,7 @@ activities.get('/', async (c) => {
     return c.json({ error: 'planId is required' }, 400);
   }
 
-  const planActivities = getMockActivitiesByPlanId(planId);
+  const planActivities = getActivities(planId);
   
   return c.json({ activities: planActivities });
 });
@@ -45,10 +43,10 @@ activities.get('/', async (c) => {
 activities.post('/', async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
-  const { title, description, address, link, category, imageUrl, planId } = body;
+  const { name, description, location, category, planId, isFixed } = body;
 
-  if (!title || title.length < 1) {
-    return c.json({ error: 'Title is required' }, 400);
+  if (!name || name.length < 1) {
+    return c.json({ error: 'Name is required' }, 400);
   }
 
   if (!planId) {
@@ -59,17 +57,14 @@ activities.post('/', async (c) => {
     return c.json({ error: 'Valid category is required (ETEN, CULTUUR, SPORT, OVERIG)' }, 400);
   }
 
-  const newActivity = createMockActivity({
-    title,
+  const newActivity = createActivity({
+    name,
     description,
-    address,
-    link,
+    location,
     category,
-    imageUrl,
     planId,
-  }, user.id);
-  
-  mockActivities.push(newActivity);
+    isFixed: isFixed || false,
+  });
 
   return c.json(newActivity, 201);
 });
@@ -77,21 +72,8 @@ activities.post('/', async (c) => {
 // DELETE /activities/:id - Delete an activity
 activities.delete('/:id', async (c) => {
   const activityId = c.req.param('id');
-  const planId = c.req.query('planId');
   
-  if (!planId) {
-    return c.json({ error: 'planId is required' }, 400);
-  }
-
-  const index = mockActivities.findIndex(
-    (a) => a.id === activityId && a.planId === planId
-  );
-
-  if (index === -1) {
-    return c.json({ error: 'Activity not found' }, 404);
-  }
-
-  mockActivities.splice(index, 1);
+  deleteActivity(activityId);
 
   return c.json({ success: true });
 });

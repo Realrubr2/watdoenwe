@@ -1,16 +1,15 @@
-// Mock Ideas Routes - Development version with in-memory data
+// Mock Ideas Routes - Development version with SQLite
 import { Hono } from 'hono';
-import { v4 as uuidv4 } from 'uuid';
-import { 
-  mockIdeas, 
-  mockUsers,
-  getMockIdeasByPlanId, 
-  createMockIdea 
-} from '../mocks/data';
+import {
+  getUserByToken,
+  getIdeas,
+  createIdea,
+  deleteIdea,
+  vote
+} from '../db-sqlite';
 
 const ideas = new Hono<{ Variables: { user: any } }>();
 
-// Middleware to get user from token (simplified for mock)
 ideas.use('*', async (c, next) => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -18,7 +17,7 @@ ideas.use('*', async (c, next) => {
   }
   
   const token = authHeader.split(' ')[1];
-  const user = mockUsers.find((u) => u.guestToken === token);
+  const user = getUserByToken(token);
   
   if (!user) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -36,7 +35,7 @@ ideas.get('/', async (c) => {
     return c.json({ error: 'planId is required' }, 400);
   }
 
-  const planIdeas = getMockIdeasByPlanId(planId);
+  const planIdeas = getIdeas(planId);
   
   return c.json({ ideas: planIdeas });
 });
@@ -45,10 +44,10 @@ ideas.get('/', async (c) => {
 ideas.post('/', async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
-  const { title, description, address, link, category, imageUrl, planId } = body;
+  const { name, description, category, planId } = body;
 
-  if (!title || title.length < 1) {
-    return c.json({ error: 'Title is required' }, 400);
+  if (!name || name.length < 1) {
+    return c.json({ error: 'Name is required' }, 400);
   }
 
   if (!planId) {
@@ -59,39 +58,38 @@ ideas.post('/', async (c) => {
     return c.json({ error: 'Valid category is required (ETEN, CULTUUR, SPORT, OVERIG)' }, 400);
   }
 
-  const newIdea = createMockIdea({
-    title,
+  const newIdea = createIdea({
+    name,
     description,
-    address,
-    link,
     category,
-    imageUrl,
     planId,
-  }, user.id);
-  
-  mockIdeas.push(newIdea);
+    userId: user.id,
+  });
 
   return c.json(newIdea, 201);
+});
+
+// POST /ideas/:id/vote - Vote for an idea
+ideas.post('/:id/vote', async (c) => {
+  const user = c.get('user');
+  const ideaId = c.req.param('id');
+  const body = await c.req.json();
+  const { value } = body;
+
+  if (!value || ![1, -1].includes(value)) {
+    return c.json({ error: 'Value must be 1 or -1' }, 400);
+  }
+
+  const updatedIdea = vote(user.id, ideaId, value);
+
+  return c.json(updatedIdea);
 });
 
 // DELETE /ideas/:id - Delete an idea
 ideas.delete('/:id', async (c) => {
   const ideaId = c.req.param('id');
-  const planId = c.req.query('planId');
   
-  if (!planId) {
-    return c.json({ error: 'planId is required' }, 400);
-  }
-
-  const index = mockIdeas.findIndex(
-    (i) => i.id === ideaId && i.planId === planId
-  );
-
-  if (index === -1) {
-    return c.json({ error: 'Idea not found' }, 404);
-  }
-
-  mockIdeas.splice(index, 1);
+  deleteIdea(ideaId);
 
   return c.json({ success: true });
 });
