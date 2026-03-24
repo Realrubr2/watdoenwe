@@ -82,6 +82,7 @@ export class PlanService {
         mode: p.mode,
         status: p.status,
         hostId: p.hostId,
+        shareToken: p.shareToken,
         createdAt: new Date(p.createdAt),
         updatedAt: new Date(p.updatedAt),
       }));
@@ -172,6 +173,8 @@ export class PlanService {
 
       const data = await response.json();
       const planData = data.plan || data;
+      console.log('[PlanService] getPlan API response:', data);
+      console.log('[PlanService] planData.shareToken:', planData.shareToken);
       
       const plan: Plan = {
         id: planData.id,
@@ -187,6 +190,7 @@ export class PlanService {
       return plan;
     } catch (error) {
       console.error('Error fetching plan:', error);
+      console.log('[PlanService] API failed, falling back to local');
       // Fallback to local plan
       return this.getPlanLocal(id) || null;
     }

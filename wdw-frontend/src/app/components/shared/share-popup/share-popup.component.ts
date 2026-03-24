@@ -40,14 +40,6 @@ import { ModalComponent } from '../modal/modal.component';
           </div>
         </div>
 
-        <!-- QR Code Placeholder -->
-        <div class="share-popup__section share-popup__qr">
-          <div class="share-popup__qr-box">
-            <span class="material-symbols-outlined share-popup__qr-icon">qr_code_2</span>
-            <p class="share-popup__qr-text">Scan de QR code om te delen</p>
-          </div>
-        </div>
-
         <!-- Social Share Buttons -->
         <div class="share-popup__section">
           <p class="share-popup__label">Of deel direct via:</p>
@@ -206,7 +198,10 @@ export class SharePopupComponent {
 
   shareUrl(): string {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    return `${baseUrl}/gast-ervaring/${this.shareToken}`;
+    const url = `${baseUrl}/gast-ervaring/${this.shareToken}`;
+    console.log('[SharePopup] shareToken:', this.shareToken);
+    console.log('[SharePopup] generated URL:', url);
+    return url;
   }
 
   copyLink(input: HTMLInputElement): void {

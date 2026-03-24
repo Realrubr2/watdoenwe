@@ -26,10 +26,10 @@
   <section class="wdw-section">
     <div class="wdw-bento-grid">
       <!-- Mode 1: Ik weet wanneer (Full width on mobile, 1 column on desktop) -->
-      <a
-        routerLink="/vaste-datum"
+      <button
+        (click)="openCreatePlanModalWithMode('FIXED_DATE')"
         class="wdw-bento-item wdw-bento-item--span2"
-        style="min-height: 176px;"
+        style="min-height: 176px; text-align: left; cursor: pointer;"
       >
         <div class="wdw-bento-icon">
           <span class="material-symbols-outlined wdw-bento-icon__symbol">calendar_today</span>
@@ -38,13 +38,13 @@
           <h3 class="wdw-bento-title">Ik weet wanneer</h3>
           <p class="wdw-bento-subtitle">(Vaste datum)</p>
         </div>
-      </a>
+      </button>
 
       <!-- Mode 2: Ik weet wat -->
-      <a
-        routerLink="/vaste-activiteit"
+      <button
+        (click)="openCreatePlanModalWithMode('FIXED_ACTIVITY')"
         class="wdw-bento-item"
-        style="min-height: 192px;"
+        style="min-height: 192px; text-align: left; cursor: pointer;"
       >
         <div class="wdw-bento-icon">
           <span class="material-symbols-outlined wdw-bento-icon__symbol">restaurant</span>
@@ -53,25 +53,24 @@
           <h3 class="wdw-bento-title">Ik weet wat</h3>
           <p class="wdw-bento-subtitle">(Vaste activiteit)</p>
         </div>
-      </a>
+      </button>
 
       <!-- Mode 3: Geen idee nog -->
-      <a
-        routerLink="/we-zien-wel"
+      <button
+        (click)="openCreatePlanModalWithMode('FLEXIBLE')"
         class="wdw-bento-item wdw-bento-item--primarybg"
-        style="min-height: 192px;"
+        style="min-height: 192px; text-align: left; cursor: pointer;"
       >
         <div class="wdw-bento-icon-wrap">
           <div class="wdw-bento-icon">
             <span class="material-symbols-outlined wdw-bento-icon__symbol">help</span>
           </div>
         </div>
-        <span class="wdw-bento-decor">help_outline</span>
         <div class="wdw-bento-text">
           <h3 class="wdw-bento-title">Geen idee nog</h3>
           <p class="wdw-bento-subtitle">(We zien wel)</p>
         </div>
-      </a>
+      </button>
     </div>
   </section>
 

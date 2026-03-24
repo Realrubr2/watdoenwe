@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../../components/layout/header/header.component';
 import { MobileNavComponent } from '../../components/layout/mobile-nav/mobile-nav.component';
+import { SharePopupComponent } from '../../components/shared/share-popup/share-popup.component';
 import { ActivityService, AuthService, PlanService } from '../../services';
 
 @Component({
   selector: 'app-vaste-datum',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, MobileNavComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, MobileNavComponent, SharePopupComponent],
   templateUrl: './vaste-datum.component.html'
 })
 export class VasteDatumComponent implements OnInit {
@@ -20,6 +21,8 @@ export class VasteDatumComponent implements OnInit {
   showAddModal = false;
   currentPlanId = signal<string | null>(null);
   planName = signal('Mijn Plan');
+  currentShareToken = signal('');
+  showSharePopup = signal(false);
 
   activities = computed(() => {
     const planId = this.currentPlanId();
@@ -42,13 +45,20 @@ export class VasteDatumComponent implements OnInit {
         // Set as active plan and fetch activities
         this.planService.getPlan(planId).then(plan => {
           if (plan) {
+            console.log('[VasteDatum] Plan loaded:', plan);
+            console.log('[VasteDatum] shareToken:', plan.shareToken);
             this.planService.setCurrentPlan(plan);
             this.planName.set(plan.name);
+            this.currentShareToken.set(plan.shareToken || '');
             this.activityService.fetchActivities(planId);
           }
         });
       }
     });
+  }
+
+  openSharePopup(): void {
+    this.showSharePopup.set(true);
   }
 
   addActivity(): void {

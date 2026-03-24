@@ -8,9 +8,15 @@
         <p class="text-sm font-bold uppercase tracking-widest text-primary mb-1">Planning voor</p>
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">{{ planName() }}</h1>
       </div>
-      <div class="badge-primary">
-        <span class="material-symbols-outlined text-lg mr-1">lightbulb</span>
-        {{ activities().length }} Ideeën
+      <div class="flex items-center gap-4">
+        <button class="btn-outline flex items-center gap-2" (click)="openSharePopup()">
+          <span class="material-symbols-outlined">share</span>
+          Delen
+        </button>
+        <div class="badge-primary">
+          <span class="material-symbols-outlined text-lg mr-1">lightbulb</span>
+          {{ activities().length }} Ideeën
+        </div>
       </div>
     </div>
   </section>
@@ -117,3 +123,10 @@
 </main>
 
 <app-mobile-nav></app-mobile-nav>
+
+<!-- Share Popup -->
+<app-share-popup
+  [isOpen]="showSharePopup()"
+  [shareToken]="currentShareToken()"
+  (isOpenChange)="showSharePopup.set($event)"
+></app-share-popup>

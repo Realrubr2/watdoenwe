@@ -82,6 +82,17 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  openCreatePlanModalWithMode(mode: PlanMode): void {
+    // Check if user is authenticated, if not show name popup first
+    if (!this.authService.isAuthenticated()) {
+      this.selectedMode.set(mode);
+      this.showNamePopup.set(true);
+    } else {
+      this.selectedMode.set(mode);
+      this.showCreatePlanModal.set(true);
+    }
+  }
+
   async onNameSubmit(name: string): Promise<void> {
     this.showNamePopup.set(false);
     await this.authService.createGuestSession(name);
@@ -109,6 +120,8 @@ export class DashboardComponent implements OnInit {
     }
 
     const user = this.authService.user();
+    console.log('[Dashboard] user:', user);
+    console.log('[Dashboard] user.id:', user?.id);
     if (!user) {
       console.error('No user found, cannot create plan');
       return;
