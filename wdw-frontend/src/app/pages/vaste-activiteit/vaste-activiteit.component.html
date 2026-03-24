@@ -3,29 +3,114 @@
 <main class="min-h-screen pt-24 pb-32 px-6 max-w-7xl mx-auto">
   <!-- Activity Header Section -->
   <section class="mb-8">
-    <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">PLANNEN</p>
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">Midgetgolfen</h1>
-    <div class="flex items-center gap-2 text-on-surface-variant mb-4">
-      <span class="material-symbols-outlined text-lg">location_on</span>
-      <span class="font-medium">GlowGolf Centrum</span>
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">PLANNEN</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">{{ plan()?.name || 'Midgetgolfen' }}</h1>
+        <div class="flex items-center gap-2 text-on-surface-variant mb-4">
+          <span class="material-symbols-outlined text-lg">location_on</span>
+          <span class="font-medium">{{ plan()?.activityLocation || 'GlowGolf Centrum' }}</span>
+        </div>
+      </div>
+      <button
+        class="btn-outline flex items-center gap-2 shrink-0"
+        (click)="sharePlan()"
+        title="Delen"
+      >
+        <span class="material-symbols-outlined">share</span>
+        <span class="hidden sm:inline">Delen</span>
+      </button>
     </div>
 
-    <!-- Participant Avatars -->
+    <!-- Participant Avatars (actual user only) -->
     <div class="flex items-center gap-2">
-      <div class="flex -space-x-2">
-        <div class="w-8 h-8 rounded bg-blue-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">J</div>
-        <div class="w-8 h-8 rounded bg-green-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">L</div>
-        <div class="w-8 h-8 rounded bg-red-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">M</div>
-        <div class="w-8 h-8 rounded bg-orange-500 border-2 border-surface flex items-center justify-center text-white text-xs font-bold">S</div>
-      </div>
-      <span class="badge-secondary">+1</span>
+      @if (participants().length > 0) {
+        <div class="flex -space-x-2">
+          @for (participant of participants(); track participant.id) {
+            <div class="w-8 h-8 rounded-full bg-primary border-2 border-surface flex items-center justify-center text-on-primary text-xs font-bold">
+              {{ participant.name.charAt(0).toUpperCase() }}
+            </div>
+          }
+        </div>
+        <span class="text-sm text-on-surface-variant">Jij</span>
+      } @else {
+        <span class="text-sm text-on-surface-variant">Geen deelnemers</span>
+      }
     </div>
   </section>
+
+  <!-- Confirmed Date Ranges -->
+  @if (confirmedRanges().length > 0) {
+    <section class="mb-6">
+      <div class="flex flex-wrap gap-2">
+        @for (range of confirmedRanges(); track $index) {
+          <div class="group bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-4 py-2 flex items-center gap-2 transition-all duration-200">
+            <span class="material-symbols-outlined text-primary text-sm">event</span>
+            <span class="text-sm font-medium text-primary">
+              @if (range.start.getTime() === range.end.getTime()) {
+                {{ formatShortDate(range.start) }}
+              } @else {
+                {{ formatShortDate(range.start) }} - {{ formatShortDate(range.end) }}
+              }
+            </span>
+            <button 
+              class="w-5 h-5 rounded-full bg-primary/20 group-hover:bg-primary/30 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+              (click)="removeRange($index)"
+              title="Verwijder"
+            >
+              <span class="material-symbols-outlined text-xs text-primary">close</span>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Current Selection Indicator -->
+  @if (selectionStart()) {
+    <section class="mb-6">
+      <div class="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary">edit_calendar</span>
+            </div>
+            <div>
+              <p class="font-semibold text-primary">
+                @if (selectionStart() && selectionEnd() && selectionStart()!.getTime() === selectionEnd()!.getTime()) {
+                  {{ formatShortDate(selectionStart()!) }} geselecteerd
+                } @else {
+                  Selectie: {{ getSelectionLabel() }}
+                }
+              </p>
+              <p class="text-xs text-on-surface-variant">Klik nogmaals om te bevestigen of Annuleer</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button 
+              class="btn-outline text-sm py-2 px-4 flex items-center gap-1"
+              (click)="cancelSelection()"
+            >
+              <span class="material-symbols-outlined text-sm">close</span>
+              Annuleer
+            </button>
+            <button 
+              class="btn-primary text-sm py-2 px-4 flex items-center gap-1"
+              (click)="confirmSelection()"
+            >
+              <span class="material-symbols-outlined text-sm">check</span>
+              Bevestig
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
 
   <!-- Calendar Container -->
   <section class="mb-12">
     <!-- Calendar Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-4">
       <button class="btn-icon" (click)="previousMonth()">
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
@@ -36,11 +121,11 @@
     </div>
 
     <!-- Calendar Grid -->
-    <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/10">
+    <div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 shadow-lg">
       <!-- Day Labels -->
-      <div class="grid grid-cols-7 gap-1 mb-2">
+      <div class="grid grid-cols-7 mb-2">
         @for (day of weekDays; track day) {
-          <div class="text-center text-xs font-bold uppercase tracking-tighter text-on-surface-variant py-2"
+          <div class="text-center text-xs font-bold uppercase tracking-wider text-on-surface-variant py-3"
                [class.text-primary]="day === 'ZA' || day === 'ZO'">
             {{ day }}
           </div>
@@ -48,79 +133,57 @@
       </div>
 
       <!-- Calendar Cells -->
-      <div class="grid grid-cols-7 gap-1">
+      <div class="grid grid-cols-7 gap-1 md:gap-2">
         @for (day of calendarDays(); track day.date.toISOString()) {
-          <div
-            class="calendar-cell cursor-pointer"
+          <button
+            class="aspect-square flex flex-col items-center justify-center rounded-xl transition-all duration-200 hover:bg-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
             [class.opacity-30]="!day.isCurrentMonth"
-            [class.bg-primary/10]="day.isToday"
-            [class.ring-2]="day.isPerfectMatch"
-            [class.ring-primary]="day.isPerfectMatch"
-            [class.ring-offset-2]="day.isPerfectMatch"
+            [class.opacity-60]="!day.isCurrentMonth && day.isToday"
+            [class.bg-primary]="isDateInSelection(day.date)"
+            [class.bg-primary/20]="isDateInConfirmedRange(day.date) && !isDateInSelection(day.date)"
+            [class.bg-primary/10]="day.isToday && !isDateInSelection(day.date) && !isDateInConfirmedRange(day.date)"
+            [class.ring-2]="day.isPerfectMatch && !isDateInSelection(day.date)"
+            [class.ring-primary]="day.isPerfectMatch && !isDateInSelection(day.date)"
+            [class.ring-2]="selectionStart() && day.date.getTime() === selectionStart()!.getTime() && !isDateInSelection(day.date)"
+            [class.ring-primary]="selectionStart() && day.date.getTime() === selectionStart()!.getTime() && !isDateInSelection(day.date)"
+            [class.scale-105]="isDateInSelection(day.date)"
+            [class.shadow-lg]="isDateInSelection(day.date)"
+            [class.z-10]="isDateInSelection(day.date)"
+            (click)="onDayClick(day)"
           >
-            <!-- Date Number -->
-            <span class="text-xs font-medium" [class.text-primary]="day.isWeekend">
+            <span 
+              class="text-sm font-medium transition-colors" 
+              [class.text-primary]="day.isWeekend || (isDateInSelection(day.date) && !day.isWeekend)"
+              [class.text-white]="isDateInSelection(day.date)"
+              [class.font-bold]="isDateInSelection(day.date) || day.isToday"
+            >
               {{ day.dayNumber }}
             </span>
-
-            <!-- Participant Overlays -->
-            @if (day.participants.length > 0) {
-              <div class="absolute inset-0 rounded-lg overflow-hidden">
-                @for (participant of day.participants; track participant.userId) {
-                  <div
-                    class="heatmap-overlay"
-                    [style.backgroundColor]="participant.userColor"
-                  ></div>
-                }
-              </div>
-
-              <!-- Avatar Cluster -->
-              <div class="absolute top-1 right-1 flex -space-x-1">
-                @for (participant of day.participants.slice(0, 3); track participant.userId) {
-                  <div
-                    class="w-4 h-4 rounded-full border border-white flex items-center justify-center text-white text-[8px] font-bold scale-75"
-                    [style.backgroundColor]="participant.userColor.replace('0.3', '1')"
-                  >
-                    {{ participant.userName.charAt(0) }}
-                  </div>
-                }
-              </div>
-
-              <!-- Perfect Match Indicator -->
-              @if (day.isPerfectMatch) {
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-primary text-lg filled">star</span>
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 text-center">
-                  <span class="text-[8px] font-bold uppercase text-primary">PERFECT!</span>
-                </div>
-              }
+            
+            <!-- Selection dot indicator -->
+            @if (selectionStart() && day.date.getTime() === selectionStart()!.getTime()) {
+              <div class="w-1.5 h-1.5 rounded-full bg-primary mt-0.5" [class.bg-white]="isDateInSelection(day.date)"></div>
             }
-          </div>
+            @if (selectionEnd() && selectionStart() && day.date.getTime() === selectionEnd()!.getTime() && day.date.getTime() !== selectionStart()!.getTime()) {
+              <div class="w-1.5 h-1.5 rounded-full bg-primary mt-0.5"></div>
+            }
+          </button>
         }
       </div>
 
       <!-- Legend -->
-      <div class="mt-6 flex flex-wrap gap-3 items-center">
+      <div class="mt-6 pt-4 border-t border-outline-variant/20 flex flex-wrap gap-4 md:gap-6 items-center justify-center">
         <div class="flex items-center gap-2">
-          <div class="w-4 h-4 rounded bg-blue-500/30"></div>
-          <span class="text-xs font-medium text-on-surface-variant">Jan</span>
+          <div class="w-5 h-5 rounded bg-primary shadow-sm"></div>
+          <span class="text-xs text-on-surface-variant">Selectie</span>
         </div>
         <div class="flex items-center gap-2">
-          <div class="w-4 h-4 rounded bg-green-500/30"></div>
-          <span class="text-xs font-medium text-on-surface-variant">Lisa</span>
+          <div class="w-5 h-5 rounded bg-primary/20"></div>
+          <span class="text-xs text-on-surface-variant">Bevestigd</span>
         </div>
         <div class="flex items-center gap-2">
-          <div class="w-4 h-4 rounded bg-red-500/30"></div>
-          <span class="text-xs font-medium text-on-surface-variant">Mark</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-4 h-4 rounded bg-orange-500/30"></div>
-          <span class="text-xs font-medium text-on-surface-variant">Sarah</span>
-        </div>
-        <div class="flex items-center gap-1 ml-auto">
-          <span class="material-symbols-outlined text-primary text-sm">info</span>
-          <span class="text-xs text-on-surface-variant">Dagen kleuren intenser bij meer matches</span>
+          <div class="w-5 h-5 rounded bg-primary/10 ring-1 ring-primary/50"></div>
+          <span class="text-xs text-on-surface-variant">Vandaag</span>
         </div>
       </div>
     </div>
@@ -133,45 +196,80 @@
       <h2 class="text-2xl font-bold tracking-tight">Beste Tijden</h2>
     </div>
 
-    <div class="space-y-4">
-      <!-- Primary Match Card -->
-      <div class="bg-primary rounded-lg p-6 shadow-lg border-b-4 border-b-primary/20 hover:-translate-y-1 transition-transform duration-200">
-        <p class="text-xs font-bold uppercase tracking-widest text-on-primary/70 mb-2">ULTIEME MATCH</p>
-        <h3 class="text-2xl font-bold text-on-primary mb-2">Zaterdag 14 maart</h3>
-        <div class="inline-flex items-center gap-1 px-3 py-1 bg-on-primary/20 rounded-full mb-3">
-          <span class="text-sm font-bold text-on-primary">5/5 Aanwezig</span>
-        </div>
-        <p class="text-on-primary/80 text-sm mb-4">De hele groep heeft deze dag groen licht gegeven. Perfect voor een middagje midgetgolf!</p>
-        <button class="btn-secondary bg-on-primary text-primary w-full">
-          Nu Vastleggen
-        </button>
+    @if (hasMatches()) {
+      <div class="space-y-4">
+        @for (match of bestMatches(); track match.date.toISOString(); let i = $index) {
+          @if (isPerfectMatch(match) && i === 0) {
+            <!-- Primary Match Card - Perfect Match -->
+            <div class="bg-primary rounded-2xl p-6 shadow-lg hover:-translate-y-1 transition-transform duration-200">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-widest text-on-primary/70 mb-1">ULTIEME MATCH</p>
+                  <h3 class="text-2xl font-bold text-on-primary mb-2">{{ formatDate(match.date) }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-on-primary/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-on-primary filled">star</span>
+                </div>
+              </div>
+              <div class="inline-flex items-center gap-1 px-3 py-1 bg-on-primary/20 rounded-full mb-3">
+                <span class="text-sm font-bold text-on-primary">{{ getParticipantCount(match) }}</span>
+              </div>
+              <p class="text-on-primary/80 text-sm mb-4">De hele groep heeft deze dag groen licht gegeven. Perfect!</p>
+              <button class="btn-secondary bg-on-primary text-primary w-full py-3" (click)="selectMatch(match)">
+                Nu Vastleggen
+              </button>
+            </div>
+          } @else {
+            <!-- Secondary Match Card -->
+            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 hover:border-primary/30 hover:shadow-md transition-all duration-200">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-widest text-primary/70 mb-1">ALTERNATIEF</p>
+                  <h3 class="text-xl font-bold mb-2">{{ formatDate(match.date) }}</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center">
+                  <span class="material-symbols-outlined text-on-surface-variant text-lg">event</span>
+                </div>
+              </div>
+              <div class="inline-flex items-center gap-1 px-3 py-1 bg-surface-variant rounded-full mb-3">
+                <span class="text-sm font-bold text-on-surface-variant">{{ getParticipantCount(match) }}</span>
+              </div>
+              @if (match.participantCount === match.totalParticipants - 1) {
+                <p class="text-on-surface-variant text-sm mb-4">Bijna iedereen kan, alleen de laatste persoon moet nog bevestigen.</p>
+              } @else {
+                <p class="text-on-surface-variant text-sm mb-4">{{ match.participantCount }} van de {{ match.totalParticipants }} deelnemers zijn beschikbaar.</p>
+              }
+              <button class="btn-outline w-full" (click)="selectMatch(match)">
+                Details bekijken
+              </button>
+            </div>
+          }
+        }
       </div>
-
-      <!-- Secondary Match Card -->
-      <div class="bg-surface-container-lowest rounded-lg p-6 border-2 border-outline-variant/30 hover:border-primary/50 transition-colors duration-200">
-        <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">ALTERNATIEF</p>
-        <h3 class="text-xl font-bold mb-2">Zaterdag 2 maart</h3>
-        <div class="inline-flex items-center gap-1 px-3 py-1 bg-surface-variant rounded-full mb-3">
-          <span class="text-sm font-bold text-on-surface-variant">4/5 Aanwezig</span>
+    } @else {
+      <!-- Empty State -->
+      <div class="bg-surface-container-lowest rounded-2xl p-12 text-center border border-dashed border-outline-variant/30">
+        <div class="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <span class="material-symbols-outlined text-5xl text-primary/50">calendar_month</span>
         </div>
-        <p class="text-on-surface-variant text-sm mb-4">Bijna iedereen kan, alleen de laatste persoon moet nog bevestigen.</p>
-        <button class="btn-outline w-full">
-          Details bekijken
-        </button>
+        <h3 class="text-xl font-bold text-on-surface-variant mb-2">Nog geen datums geselecteerd</h3>
+        <p class="text-on-surface-variant/70 mb-4 max-w-md mx-auto">
+          Klik op een dag in de kalender om aan te geven wanneer je beschikbaar bent.
+        </p>
+        <div class="flex items-center justify-center gap-2 text-sm text-on-surface-variant/50">
+          <span class="material-symbols-outlined text-sm">touch_app</span>
+          <span>Selecteer start- en einddatum om een periode te markeren</span>
+        </div>
       </div>
-    </div>
+    }
   </section>
 </main>
 
-<!-- Mobile Painter Tool -->
-<div class="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 md:hidden">
-  <div class="bg-surface-container-lowest rounded-full shadow-lg border border-outline-variant/20 px-4 py-3 flex items-center gap-3">
-    <span class="material-symbols-outlined text-on-surface-variant">edit_square</span>
-    <span class="text-sm font-medium text-on-surface-variant">Beschikbaarheid</span>
-    <div class="w-px h-6 bg-outline-variant/30"></div>
-    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">J</div>
-    <span class="material-symbols-outlined text-on-surface-variant">block</span>
-  </div>
-</div>
-
 <app-mobile-nav></app-mobile-nav>
+
+<!-- Share Popup -->
+<app-share-popup
+  [isOpen]="showSharePopup()"
+  [shareToken]="currentShareToken()"
+  (isOpenChange)="showSharePopup.set($event)"
+></app-share-popup>

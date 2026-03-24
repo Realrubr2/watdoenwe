@@ -7,10 +7,24 @@ import {
   getPlans,
   createPlan,
   updatePlan,
-  deletePlan
+  deletePlan,
+  getPlanByShareToken
 } from '../db-sqlite';
 
 const plans = new Hono<{ Variables: { user: any } }>();
+
+// Public endpoint - get plan by share token (must be before auth middleware)
+plans.get('/share/:shareToken', async (c) => {
+  const shareToken = c.req.param('shareToken');
+  
+  const plan = getPlanByShareToken(shareToken);
+
+  if (!plan) {
+    return c.json({ error: 'Plan not found' }, 404);
+  }
+
+  return c.json({ plan });
+});
 
 plans.use('*', async (c, next) => {
   const authHeader = c.req.header('Authorization');

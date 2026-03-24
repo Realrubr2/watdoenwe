@@ -36,6 +36,7 @@ export async function initDb(): Promise<void> {
       mode TEXT NOT NULL,
       status TEXT NOT NULL,
       host_id TEXT NOT NULL,
+      share_token TEXT,
       date TEXT,
       activity_name TEXT,
       activity_location TEXT,
@@ -44,7 +45,7 @@ export async function initDb(): Promise<void> {
       updated_at TEXT,
       FOREIGN KEY (host_id) REFERENCES users(id)
     );
-    
+
     CREATE TABLE IF NOT EXISTS plan_participants (
       id TEXT PRIMARY KEY,
       plan_id TEXT NOT NULL,
@@ -146,6 +147,13 @@ export async function initDb(): Promise<void> {
     
     CREATE INDEX IF NOT EXISTS idx_session_plan ON sessions(plan_id);
   `);
+  
+  // Migration: Add share_token column if it doesn't exist (for existing databases)
+  try {
+    db!.exec('ALTER TABLE plans ADD COLUMN share_token TEXT');
+  } catch (e: any) {
+    // Column may already exist, ignore error
+  }
   
   console.log('SQLite database initialized and synced.');
   
@@ -262,6 +270,12 @@ export function getPlanById(id: string) {
   `).get(id) as any;
 }
 
+export function getPlanByShareToken(shareToken: string) {
+  return db!.prepare(`
+    SELECT * FROM plans WHERE share_token = ?
+  `).get(shareToken) as any;
+}
+
 export function getPlanParticipants(planId: string) {
   return db!.prepare(`
     SELECT pp.*, u.name, u.is_guest, u.guest_token
@@ -273,11 +287,12 @@ export function getPlanParticipants(planId: string) {
 
 export function createPlan(data: any) {
   const id = uuidv4();
+  const shareToken = uuidv4().substring(0, 8);
   const now = new Date().toISOString();
   db!.prepare(`
-    INSERT INTO plans (id, name, mode, status, host_id, date, activity_name, activity_location, description, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, data.name, data.mode, data.status, data.hostId, data.date, data.activityName, data.activityLocation, data.description, now);
+    INSERT INTO plans (id, name, mode, status, host_id, share_token, date, activity_name, activity_location, description, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, data.name, data.mode, data.status, data.hostId, shareToken, data.date, data.activityName, data.activityLocation, data.description, now);
   
   // Add host as participant
   db!.prepare(`

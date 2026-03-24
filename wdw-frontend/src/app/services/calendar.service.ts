@@ -407,4 +407,48 @@ export class CalendarService {
       isPerfectMatch,
     };
   }
+
+  getDateMatches(
+    planId: string,
+    participants: { id: string; name: string }[],
+    limit: number = 5
+  ): DateMatch[] {
+    const dateSlots = this.getDateSlotsForPlan(planId);
+    const availabilities = this.getAvailabilityForPlan(planId);
+
+    if (dateSlots.length === 0 || participants.length === 0) {
+      return [];
+    }
+
+    const dateMatches: DateMatch[] = dateSlots.map(slot => {
+      const slotDate = new Date(slot.date);
+      slotDate.setHours(0, 0, 0, 0);
+
+      const slotAvailabilities = availabilities.filter(a => a.dateSlotId === slot.id);
+      const availableCount = slotAvailabilities.filter(a => a.status === 'AVAILABLE').length;
+
+      const participantAvailabilities: ParticipantAvailability[] = participants.map((p, index) => {
+        const availability = slotAvailabilities.find(a => a.userId === p.id);
+        return {
+          userId: p.id,
+          userName: p.name,
+          userColor: this.participantColors[index % this.participantColors.length],
+          status: availability?.status || 'UNAVAILABLE',
+        };
+      });
+
+      return {
+        date: slotDate,
+        participantCount: availableCount,
+        totalParticipants: participants.length,
+        isPerfectMatch: availableCount === participants.length && participants.length > 0,
+        participants: participantAvailabilities,
+      };
+    });
+
+    // Sort by participant count (descending) and limit results
+    return dateMatches
+      .sort((a, b) => b.participantCount - a.participantCount || a.date.getTime() - b.date.getTime())
+      .slice(0, limit);
+  }
 }

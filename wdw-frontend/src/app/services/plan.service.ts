@@ -81,10 +81,10 @@ export class PlanService {
         name: p.name,
         mode: p.mode,
         status: p.status,
-        hostId: p.hostId,
-        shareToken: p.shareToken,
-        createdAt: new Date(p.createdAt),
-        updatedAt: new Date(p.updatedAt),
+        hostId: p.hostId || p.host_id,
+        shareToken: p.shareToken || p.share_token,
+        createdAt: new Date(p.createdAt || p.created_at),
+        updatedAt: new Date(p.updatedAt || p.updated_at),
       }));
 
       this.plans.set(plans);
@@ -120,10 +120,10 @@ export class PlanService {
         name: planData.name,
         mode: planData.mode,
         status: planData.status,
-        hostId: planData.hostId,
-        shareToken: planData.shareToken,
-        createdAt: new Date(planData.createdAt),
-        updatedAt: new Date(planData.updatedAt),
+        hostId: planData.hostId || planData.host_id,
+        shareToken: planData.shareToken || planData.share_token,
+        createdAt: new Date(planData.createdAt || planData.created_at),
+        updatedAt: new Date(planData.updatedAt || planData.updated_at),
       };
 
       this.plans.update(plans => [...plans, plan]);
@@ -255,10 +255,10 @@ export class PlanService {
         name: planData.name,
         mode: planData.mode,
         status: planData.status,
-        hostId: planData.hostId,
-        shareToken: planData.shareToken,
-        createdAt: new Date(planData.createdAt),
-        updatedAt: new Date(planData.updatedAt),
+        hostId: planData.hostId || planData.host_id,
+        shareToken: planData.shareToken || planData.share_token,
+        createdAt: new Date(planData.createdAt || planData.created_at),
+        updatedAt: new Date(planData.updatedAt || planData.updated_at),
       };
 
       return plan;
