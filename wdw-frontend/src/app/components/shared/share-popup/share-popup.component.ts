@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
 
@@ -191,39 +191,66 @@ import { ModalComponent } from '../modal/modal.component';
 })
 export class SharePopupComponent {
   @Input() isOpen = false;
-  @Input() shareToken = '';
+  private _shareToken = signal('');
+
+  @Input() set shareToken(value: string) {
+    this._shareToken.set(value || '');
+  }
+
   @Output() isOpenChange = new EventEmitter<boolean>();
 
   copied = signal(false);
 
-  shareUrl(): string {
+  shareUrl = computed(() => {
+    const token = this._shareToken();
+    if (!token) {
+      console.warn('[SharePopup] shareToken is not yet available');
+      return '';
+    }
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${baseUrl}/gast-ervaring/${this.shareToken}`;
-    console.log('[SharePopup] shareToken:', this.shareToken);
-    console.log('[SharePopup] generated URL:', url);
-    return url;
-  }
+    return `${baseUrl}/gast-ervaring/${token}`;
+  });
 
   copyLink(input: HTMLInputElement): void {
-    navigator.clipboard.writeText(this.shareUrl()).then(() => {
+    const url = this.shareUrl();
+    if (!url) {
+      console.error('[SharePopup] Cannot copy link: shareToken is missing');
+      return;
+    }
+    navigator.clipboard.writeText(url).then(() => {
       this.copied.set(true);
       setTimeout(() => this.copied.set(false), 2000);
     });
   }
 
   shareViaWhatsApp(): void {
-    const text = encodeURIComponent(`Hey! Doe mee met mijn plan: ${this.shareUrl()}`);
+    const url = this.shareUrl();
+    if (!url) {
+      console.error('[SharePopup] Cannot share via WhatsApp: shareToken is missing');
+      return;
+    }
+    const text = encodeURIComponent(`Hey! Doe mee met mijn plan: ${url}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   }
 
   shareViaEmail(): void {
+    const url = this.shareUrl();
+    if (!url) {
+      console.error('[SharePopup] Cannot share via email: shareToken is missing');
+      return;
+    }
     const subject = encodeURIComponent('Doe mee met mijn plan!');
-    const body = encodeURIComponent(`Hey!\n\nDoe mee met mijn plan via deze link:\n${this.shareUrl()}`);
+    const body = encodeURIComponent(`Hey!\n\nDoe mee met mijn plan via deze link:\n${url}`);
     window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
   }
 
   shareViaSms(): void {
-    const body = encodeURIComponent(`Hey! Doe mee met mijn plan: ${this.shareUrl()}`);
+    const url = this.shareUrl();
+    if (!url) {
+      console.error('[SharePopup] Cannot share via SMS: shareToken is missing');
+      return;
+    }
+    const body = encodeURIComponent(`Hey! Doe mee met mijn plan: ${url}`);
     window.open(`sms:?body=${body}`, '_blank');
   }
 

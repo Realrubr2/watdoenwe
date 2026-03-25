@@ -13,6 +13,26 @@ import {
 
 const plans = new Hono<{ Variables: { user: any } }>();
 
+// Transform DB plan (snake_case) to API plan (camelCase)
+function transformPlan(plan: any) {
+  if (!plan) return null;
+  return {
+    id: plan.id,
+    name: plan.name,
+    mode: plan.mode,
+    status: plan.status,
+    hostId: plan.host_id,
+    shareToken: plan.share_token,
+    date: plan.date ? new Date(plan.date) : null,
+    activityName: plan.activity_name,
+    activityLocation: plan.activity_location,
+    description: plan.description,
+    hostName: plan.host_name,
+    createdAt: plan.created_at ? new Date(plan.created_at) : null,
+    updatedAt: plan.updated_at ? new Date(plan.updated_at) : null,
+  };
+}
+
 // Public endpoint - get plan by share token (must be before auth middleware)
 plans.get('/share/:shareToken', async (c) => {
   const shareToken = c.req.param('shareToken');
@@ -23,7 +43,7 @@ plans.get('/share/:shareToken', async (c) => {
     return c.json({ error: 'Plan not found' }, 404);
   }
 
-  return c.json({ plan });
+  return c.json({ plan: transformPlan(plan) });
 });
 
 plans.use('*', async (c, next) => {
@@ -61,11 +81,11 @@ plans.get('/', async (c) => {
     })
     .map(p => p.id);
   
-  const userPlans = allPlans.filter(p => 
+  const userPlans = allPlans.filter(p =>
     userPlanIds.includes(p.id) || participations.includes(p.id)
   );
   
-  return c.json({ plans: userPlans });
+  return c.json({ plans: userPlans.map(transformPlan) });
 });
 
 // GET /plans/:id - Get a specific plan
@@ -79,7 +99,7 @@ plans.get('/:id', async (c) => {
   
   const participants = getPlanParticipants(planId);
   
-  return c.json({ plan: { ...plan, participants } });
+  return c.json({ plan: { ...transformPlan(plan), participants } });
 });
 
 // POST /plans - Create a new plan
@@ -99,7 +119,7 @@ plans.post('/', async (c) => {
   const newPlan = createPlan({ name, mode, status: 'DRAFT', hostId: user.id });
   const participants = getPlanParticipants(newPlan.id);
   
-  return c.json({ plan: { ...newPlan, participants } }, 201);
+  return c.json({ plan: { ...transformPlan(newPlan), participants } }, 201);
 });
 
 // PUT /plans/:id - Update a plan
@@ -120,7 +140,7 @@ plans.put('/:id', async (c) => {
   const updatedPlan = updatePlan(planId, body);
   const participants = getPlanParticipants(planId);
   
-  return c.json({ plan: { ...updatedPlan, participants } });
+  return c.json({ plan: { ...transformPlan(updatedPlan), participants } });
 });
 
 // DELETE /plans/:id - Delete a plan
